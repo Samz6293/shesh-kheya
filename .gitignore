@@ -1,0 +1,16 @@
+# dependencies and build output
+node_modules/
+dist/
+
+# renderer scratch files
+_frames/
+_check/
+render/_last_*.jpg
+render/_first_*.jpg
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+*.log

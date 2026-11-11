@@ -1,0 +1,248 @@
+{
+    "_readme": "Chapter 1 text. sy = Sylheti line shown big, en = English subtitle shown in italics below. direction = acting/animation cue, never shown on screen. All Sylheti lines are DRAFTS from the script: fix wording or accent here, no code changes needed. Keep the ids; the code looks lines up by beat id.",
+    "speakers": {
+        "narrator": { "bn": "", "en": "" },
+        "mitu": { "bn": "মিতু", "en": "Mitu" },
+        "ma": { "bn": "মা", "en": "Amma" },
+        "dadi": { "bn": "দাদি", "en": "Dadi" },
+        "rahim": { "bn": "রহিম চাচা", "en": "Rahim Chacha" },
+        "kalam": { "bn": "কালাম মাঝি", "en": "Kalam Majhi" }
+    },
+    "screens": {
+        "gameTitle": { "sy": "শেষ খেয়া", "en": "The Last Ferry" },
+        "chapterTitle": { "sy": "অধ্যায় ১ — সন্ধ্যা", "en": "Chapter 1 — Dusk" },
+        "nextChapterTitle": { "sy": "অধ্যায় ২ — ঝড়", "en": "Chapter 2 — Storm" },
+        "rowingHint": { "sy": "A আর D পালা করে চাপো, বৈঠা মারতে।", "en": "Press A and D in turn to row." },
+        "pickupHint": { "sy": "E চেপে তোলো", "en": "Press E to pick up" },
+        "netHint": { "sy": "দাগ মিললে Space চাপো", "en": "Press Space when the marks line up" },
+        "pushHint": { "sy": "Space চেপে ধরে রাখো", "en": "Hold Space" },
+        "choiceHelp": { "sy": "সাহায্য করো", "en": "Help" },
+        "choiceGoHome": { "sy": "বাড়ি ফিরে যাও", "en": "Go home" }
+    },
+    "beats": {
+        "s1.opening": [
+            {
+                "speaker": "narrator",
+                "sy": "হাওরো বর্ষা আয় হর বছর। কিন্তু হেই বছরর বর্ষা, আমি কুনুদিন ভুলছি না।",
+                "en": "The monsoon comes to the haor every year. But that year's monsoon, I never forgot."
+            }
+        ],
+        "s2.intro": [
+            {
+                "speaker": "ma",
+                "sy": "মিতু, তোর বাপে অখনো আইলা না।",
+                "en": "Mitu, your father still hasn't come back."
+            },
+            {
+                "speaker": "mitu",
+                "sy": "আইবা আম্মা, হাটো দেরি অইছে মনে অয়।",
+                "en": "He'll come, Amma. Must be late at the market."
+            }
+        ],
+        "a1.babyKick.prompt": [
+            {
+                "speaker": "ma",
+                "direction": "হেসে, পেটে হাত রেখে",
+                "sy": "আয়, হাত দে। টের পাইবে।",
+                "en": "Come, put your hand here. You'll feel it."
+            }
+        ],
+        "a1.babyKick.after": [
+            {
+                "speaker": "mitu",
+                "direction": "অবাক হয়ে হাসে",
+                "sy": "নড়ের! আম্মা, নড়ের!",
+                "en": "It moved! Amma, it moved!"
+            },
+            {
+                "speaker": "ma",
+                "sy": "তোর ভাইও বাপরে খুঁজের। খালি লাথি মারে।",
+                "en": "Your brother is looking for his father too. Keeps kicking."
+            }
+        ],
+        "a2.paan.prompt": [
+            {
+                "speaker": "dadi",
+                "sy": "বেটি, একটা পান বানাই দে। তোর হাতর পান মিঠা লাগে।",
+                "en": "Girl, make me a paan. Paan from your hands tastes sweet."
+            }
+        ],
+        "a2.paan.during": [
+            {
+                "speaker": "dadi",
+                "direction": "বালাটা ঘোরাতে ঘোরাতে",
+                "sy": "এই বালাখান তোর লাগি রাখছি...",
+                "en": "I've kept this bangle for you..."
+            },
+            {
+                "speaker": "dadi",
+                "direction": "থেমে যান, হাসেন",
+                "sy": "থাউক, পরে কইমু।",
+                "en": "never mind, I'll tell you later."
+            }
+        ],
+        "a3.lantern.prompt": [
+            {
+                "speaker": "dadi",
+                "sy": "নাও লইয়া ঘাটো একবার দেখি আয়। আন্ধার অওয়ার আগে ফিরিছ।",
+                "en": "Take the boat and check the ghat. Come back before dark."
+            },
+            {
+                "speaker": "dadi",
+                "direction": "হারিকেন এগিয়ে দিয়ে",
+                "sy": "লগে নে। তোর দাদায় কইতা, পানিত বাতি ছাড়া যাইতে নাই।",
+                "en": "Take this. Your grandfather used to say, never go on the water without a light."
+            }
+        ],
+        "mem.gamchha": [
+            {
+                "speaker": "mitu",
+                "sy": "এইটা তো আব্বার গামছা... ইকানো কেনে?",
+                "en": "This is Abba's gamchha... why is it here?"
+            },
+            {
+                "speaker": "mitu",
+                "direction": "একটু থেমে",
+                "sy": "বৃষ্টিত ভিজলে আব্বায় এই গামছা দিয়া আমার মাথা মুছাই দিতা।",
+                "en": "When I got soaked in the rain, Abba used to dry my hair with this."
+            }
+        ],
+        "mem.flute": [
+            {
+                "speaker": "mitu",
+                "direction": "বাঁশির ছোট সুর বাজার পরে",
+                "sy": "আব্বায় সন্ধ্যায় ঘাটো বইয়া বাঁশি বাজাইতা। আম্মায় কইতা, এই সুর হুনিয়াই তাইনরে বিয়া করছইন।",
+                "en": "Abba used to play the flute at the ghat in the evenings. Amma says she married him because of this tune."
+            }
+        ],
+        "mem.tiffin": [
+            {
+                "speaker": "mitu",
+                "sy": "আম্মায় আইজও ভাত দিছলা... আব্বায় খাইছইন নি?",
+                "en": "Amma packed him rice today too... did Abba even eat?"
+            }
+        ],
+        "s4.intro": [
+            {
+                "speaker": "rahim",
+                "sy": "কিতা রে মিতু, ইসময় একলা?",
+                "en": "What, Mitu, alone at this hour?"
+            },
+            {
+                "speaker": "mitu",
+                "sy": "চাচা, আব্বারে দেখছইন নি?",
+                "en": "Chacha, have you seen Abba?"
+            },
+            {
+                "speaker": "rahim",
+                "sy": "আগে জালটা ধর, তারবাদে কইরাম। বুড়া হাড্ডিত আর কুলায় না।",
+                "en": "Grab the net first, then I'll tell you. These old bones can't manage anymore."
+            }
+        ],
+        "a5.net.pull1": [
+            {
+                "speaker": "rahim",
+                "sy": "বিয়ানে দেখছিলাম তোর বাপরে।",
+                "en": "I saw your father this morning."
+            }
+        ],
+        "a5.net.pull2": [
+            {
+                "speaker": "rahim",
+                "sy": "হাওরর ওই পারো গেছে, হিজল বনর দিকে।",
+                "en": "He went to the far side of the haor, toward the hijol forest."
+            }
+        ],
+        "a5.net.pull3": [
+            {
+                "speaker": "rahim",
+                "sy": "কইলো কিতা জরুরি কাম আছে। আর কিচ্ছু কইলো না।",
+                "en": "Said he had something urgent. Didn't say anything else."
+            }
+        ],
+        "s4.fish": [
+            {
+                "speaker": "rahim",
+                "direction": "হাসেন",
+                "sy": "হো হো! তুই তো তোর বাপর লাখান কপাল লইয়া আইছস। নে, ইটা ঘরো লইয়া যা।",
+                "en": "Ho ho! You've got your father's luck. Here, take this home."
+            },
+            {
+                "speaker": "mitu",
+                "sy": "চাচা, এত বড় মাছ...",
+                "en": "Chacha, such a big fish..."
+            },
+            {
+                "speaker": "rahim",
+                "sy": "তোর বাপর পছন্দর মাছ। আইজ রাইত আইলে দুইজনে মিলিয়া খাইছ।",
+                "en": "It's your father's favourite. When he comes tonight, eat it together."
+            }
+        ],
+        "s4.leave": [
+            {
+                "speaker": "rahim",
+                "direction": "আকাশের দিকে তাকিয়ে",
+                "sy": "তুই ঘরো যা। আমি একবার দেখি আইমু। আসমানর অবস্থা ভালা না।",
+                "en": "Go home. I'll go have a look. The sky doesn't look good."
+            }
+        ],
+        "s5.intro": [
+            {
+                "speaker": "kalam",
+                "sy": "ও মাই... একটু ঠেলা দিবায় নি? বুড়া হাতো আর জোর নাই।",
+                "en": "Oh child... could you give a push? These old hands have no strength left."
+            }
+        ],
+        "s5.helped": [
+            {
+                "speaker": "kalam",
+                "sy": "আল্লায় তোর ভালা করইন মাই। এই উপকার আমি ভুলতাম নায়।",
+                "en": "May God bless you, child. I won't forget this kindness."
+            },
+            {
+                "speaker": "kalam",
+                "sy": "তোর নাম কিতা?",
+                "en": "What's your name?"
+            },
+            {
+                "speaker": "mitu",
+                "sy": "মিতু।",
+                "en": "Mitu."
+            },
+            {
+                "speaker": "kalam",
+                "direction": "হেসে",
+                "sy": "মিতু... মনো রাখমু।",
+                "en": "Mitu... I'll remember."
+            }
+        ],
+        "s5.declined": [
+            {
+                "speaker": "mitu",
+                "sy": "মাফ করইন চাচা, ঘরো সবে অপেক্ষা করের।",
+                "en": "Sorry, Chacha, everyone's waiting at home."
+            }
+        ],
+        "s6.return": [
+            {
+                "speaker": "mitu",
+                "sy": "রহিম চাচায় দিছইন। আব্বার পছন্দর মাছ।",
+                "en": "Rahim Chacha gave it. Abba's favourite fish."
+            },
+            {
+                "speaker": "ma",
+                "direction": "মাছটা দেখে চোখ ভিজে যায়, কিছুক্ষণ চুপ",
+                "sy": "তোর বাপ আইলে রান্ধিমু। ইতার আগে না।",
+                "en": "I'll cook it when your father comes. Not before."
+            }
+        ],
+        "s6.dadi": [
+            {
+                "speaker": "dadi",
+                "direction": "দূরে আকাশের দিকে তাকিয়ে, নিচু গলায়",
+                "sy": "পানি বাড়ের। আইজ রাইত ভালা যাইতো নায়।",
+                "en": "The water's rising. Tonight won't go well."
+            }
+        ]
+    }
+}

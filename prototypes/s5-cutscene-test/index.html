@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>শেষ খেয়া — দৃশ্য ৫ পরীক্ষা</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="stage">
+        <!-- live game -->
+        <canvas id="game" width="1920" height="1080"></canvas>
+
+        <!-- cutscenes: picture only, sound comes from the game so it never cuts -->
+        <video id="v-intro" class="clip" src="video/intro.mp4" preload="auto" muted playsinline></video>
+        <video id="v-helped" class="clip" src="video/helped.mp4" preload="auto" muted playsinline></video>
+        <video id="v-declined" class="clip" src="video/declined.mp4" preload="auto" muted playsinline></video>
+
+        <!-- text and menus sit on top of both -->
+        <div id="ui">
+            <div id="dialogue" class="dialogue hidden">
+                <div class="dialogue-name"></div>
+                <div class="dialogue-line"></div>
+                <div class="dialogue-sub"></div>
+            </div>
+            <div id="choice" class="choice hidden"></div>
+            <div id="hint" class="hint hidden">
+                <div class="hint-text"></div>
+                <div class="hint-bar"><div class="hint-fill"></div></div>
+            </div>
+            <div id="start" class="screen">
+                <h1 class="screen-title"></h1>
+                <p class="screen-sub"></p>
+                <button id="begin" class="screen-button"></button>
+                <p class="screen-controls"></p>
+            </div>
+            <div id="end" class="screen hidden">
+                <h1 class="screen-title"></h1>
+                <p class="screen-sub"></p>
+                <button id="replay" class="screen-button"></button>
+            </div>
+            <pre id="hud" class="hud hidden"></pre>
+            <div id="fade" class="fade"></div>
+        </div>
+    </div>
+
+    <script src="shared.js"></script>
+    <script src="content.js"></script>
+    <script src="audio.js"></script>
+    <script src="ui.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

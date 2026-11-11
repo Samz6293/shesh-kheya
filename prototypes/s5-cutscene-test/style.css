@@ -1,0 +1,262 @@
+/* Test page styles. Sizes use cqw (1% of the stage width), so text scales
+   with the 16:9 stage exactly like the canvas does. */
+
+/* *{ outline: 1px solid red; } */
+
+@font-face {
+    font-family: "Tiro Bangla";
+    src: url("assets/fonts/tiro-bangla-bengali-400-normal.woff2") format("woff2");
+    unicode-range: U+0951-0952, U+0964-0965, U+0980-09FE, U+1CD0-1CF9, U+200C-200D, U+20B9, U+25CC, U+A8F1;
+}
+
+:root {
+    --ink: #17140f;
+    --paper: #f2ecde;
+    --text: #f6efe6;
+    --sub: #d8cfc4;
+    --panel: rgba(11, 9, 16, 0.5);
+    --lamp: #ffc46b;
+    --font-bn: "Tiro Bangla", serif;
+    --font-en: Georgia, "Times New Roman", serif;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    background: #08070a;
+    overflow: hidden;
+}
+
+/* 16:9 box that fits any window */
+#stage {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: min(100vw, calc(100vh * 16 / 9));
+    height: min(100vh, calc(100vw * 9 / 16));
+    container-type: size;
+    user-select: none;
+}
+
+#game, .clip {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.clip {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms ease;
+}
+
+.clip.on {
+    opacity: 1;
+}
+
+#ui {
+    position: absolute;
+    inset: 0;
+    font-family: var(--font-bn);
+    color: var(--text);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* dialogue */
+.dialogue {
+    position: absolute;
+    left: 50%;
+    top: 7cqw;
+    transform: translateX(-50%);
+    width: 62cqw;
+    padding: 1.2cqw 2cqw 1.4cqw;
+    background: var(--panel);
+    border-radius: 0.6cqw;
+    text-align: center;
+    animation: rise 400ms ease;
+}
+
+.dialogue-name {
+    margin-bottom: 0.3cqw;
+    color: var(--lamp);
+    font-size: 1.15cqw;
+    letter-spacing: 0.05em;
+}
+
+.dialogue-line {
+    min-height: 2.6cqw;
+    font-size: 2.1cqw;
+    line-height: 1.45;
+}
+
+.dialogue-sub {
+    margin-top: 0.4cqw;
+    color: var(--sub);
+    font-family: var(--font-en);
+    font-size: 1.3cqw;
+    font-style: italic;
+    opacity: 0;
+    transition: opacity 400ms ease;
+}
+
+.dialogue-sub.on {
+    opacity: 1;
+}
+
+/* choice */
+.choice {
+    position: absolute;
+    left: 50%;
+    top: 19cqw;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 2cqw;
+    animation: rise 500ms ease;
+}
+
+.choice button {
+    min-width: 16cqw;
+    padding: 0.9cqw 2cqw;
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid rgba(246, 239, 230, 0.35);
+    border-radius: 0.5cqw;
+    font-family: var(--font-bn);
+    font-size: 1.6cqw;
+    cursor: pointer;
+    transition: border-color 200ms ease, background 200ms ease;
+}
+
+.choice button small {
+    display: block;
+    color: var(--sub);
+    font-family: var(--font-en);
+    font-size: 1cqw;
+    font-style: italic;
+}
+
+.choice button:hover, .choice button:focus {
+    background: rgba(11, 9, 16, 0.72);
+    border-color: var(--lamp);
+    outline: none;
+}
+
+/* key hint + push progress */
+.hint {
+    position: absolute;
+    left: 50%;
+    bottom: 3cqw;
+    transform: translateX(-50%);
+    padding: 0.6cqw 1.6cqw;
+    background: var(--panel);
+    border-radius: 0.5cqw;
+    text-align: center;
+    font-size: 1.4cqw;
+    animation: rise 400ms ease;
+}
+
+.hint-bar {
+    display: none;
+    height: 0.25cqw;
+    margin-top: 0.6cqw;
+    background: rgba(246, 239, 230, 0.15);
+    border-radius: 1cqw;
+    overflow: hidden;
+}
+
+.hint-bar.on {
+    display: block;
+}
+
+.hint-fill {
+    width: 0;
+    height: 100%;
+    background: var(--lamp);
+}
+
+/* start / end screens */
+.screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2cqw;
+    background: rgba(8, 7, 10, 0.82);
+}
+
+.screen-title {
+    margin: 0;
+    font-size: 6.5cqw;
+    font-weight: normal;
+}
+
+.screen-sub {
+    margin: 0;
+    color: var(--sub);
+    font-size: 1.4cqw;
+}
+
+.screen-button {
+    margin-top: 1.5cqw;
+    padding: 0.8cqw 3cqw;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid rgba(246, 239, 230, 0.5);
+    border-radius: 0.5cqw;
+    font-family: var(--font-bn);
+    font-size: 1.6cqw;
+    cursor: pointer;
+    transition: border-color 200ms ease, color 200ms ease;
+}
+
+.screen-button:hover {
+    color: var(--lamp);
+    border-color: var(--lamp);
+}
+
+.screen-controls {
+    margin-top: 2cqw;
+    color: var(--sub);
+    font-size: 1cqw;
+    opacity: 0.8;
+}
+
+/* debug read-out */
+.hud {
+    position: absolute;
+    top: 0.8cqw;
+    left: 0.8cqw;
+    margin: 0;
+    padding: 0.6cqw 0.9cqw;
+    background: rgba(0, 0, 0, 0.6);
+    color: #b9f5c8;
+    font-family: Consolas, monospace;
+    font-size: 0.8cqw;
+    line-height: 1.5;
+    border-radius: 0.3cqw;
+}
+
+/* full-screen black, for fades the canvas can't do (between start screen and video) */
+.fade {
+    position: absolute;
+    inset: 0;
+    background: #08070a;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 700ms ease;
+}
+
+.fade.on {
+    opacity: 1;
+}
+
+@keyframes rise {
+    from { opacity: 0; transform: translate(-50%, 0.6cqw); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}

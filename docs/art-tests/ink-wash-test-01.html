@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+    @font-face {
+        font-family: "Tiro Bangla";
+        src: url("node_modules/@fontsource/tiro-bangla/files/tiro-bangla-bengali-400-normal.woff2") format("woff2");
+    }
+    html, body { margin: 0; background: #222; }
+    canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="out" width="1920" height="1080"></canvas>
+<script>
+const W = 1920, H = 1080;
+
+// ---------- seeded random + noise ----------
+let seed = 7;
+function rand() {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+}
+const rr = (a, b) => a + (b - a) * rand();
+function hash(x, y) {
+    const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+    return s - Math.floor(s);
+}
+function noise(x, y) {
+    const xi = Math.floor(x), yi = Math.floor(y);
+    const xf = x - xi, yf = y - yi;
+    const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+    const a = hash(xi, yi), b = hash(xi + 1, yi), c = hash(xi, yi + 1), d = hash(xi + 1, yi + 1);
+    return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+}
+function fbm(x, y, oct = 4) {
+    let s = 0, amp = 0.5, f = 1;
+    for (let i = 0; i < oct; i++) { s += amp * noise(x * f, y * f); f *= 2; amp *= 0.5; }
+    return s;
+}
+
+// ---------- canvases ----------
+function makeCanvas() {
+    const c = document.createElement("canvas");
+    c.width = W; c.height = H;
+    return c;
+}
+const out = document.getElementById("out");
+const octx = out.getContext("2d");
+
+// ink colour: cool grey when thin, warm black when dense
+function ink(a) {
+    a = Math.max(0, Math.min(1, a));
+    const k = Math.pow(a, 0.7);
+    const r = 133 + (19 - 133) * k, g = 140 + (17 - 140) * k, b = 148 + (16 - 148) * k;
+    return `rgba(${r | 0},${g | 0},${b | 0},${a})`;
+}
+
+// ---------- paper ----------
+function paintPaper() {
+    const ctx = octx;
+    const img = ctx.createImageData(W, H);
+    const d = img.data;
+    for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+            const m = (fbm(x / 260, y / 260, 4) - 0.5) * 0.12;
+            const fine = (noise(x / 2.2, y / 2.2) - 0.5) * 0.025;
+            const l = 1 + m + fine;
+            const i = (y * W + x) * 4;
+            d[i] = 242 * l; d[i + 1] = 236 * l; d[i + 2] = 222 * l; d[i + 3] = 255;
+        }
+    }
+    ctx.putImageData(img, 0, 0);
+
+    // fibres in three directions
+    for (let i = 0; i < 2600; i++) {
+        const x = rr(0, W), y = rr(0, H), len = rr(6, 26);
+        const ang = [0.3, 1.9, 2.7][i % 3] + rr(-0.3, 0.3);
+        ctx.strokeStyle = i % 5 === 0 ? "rgba(120,105,85,0.10)" : "rgba(255,252,244,0.35)";
+        ctx.lineWidth = rr(0.4, 1);
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.quadraticCurveTo(x + Math.cos(ang) * len / 2 + rr(-3, 3), y + Math.sin(ang) * len / 2 + rr(-3, 3), x + Math.cos(ang) * len, y + Math.sin(ang) * len);
+        ctx.stroke();
+    }
+    // pulp flecks
+    for (let i = 0; i < 260; i++) {
+        ctx.fillStyle = `rgba(90,75,60,${rr(0.08, 0.22)})`;
+        ctx.beginPath();
+        ctx.arc(rr(0, W), rr(0, H), rr(0.4, 1.3), 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+// grain used to granulate the ink afterwards
+function makeGrain() {
+    const c = makeCanvas(), ctx = c.getContext("2d");
+    const img = ctx.createImageData(W, H), d = img.data;
+    for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+            const n = noise(x / 3, y / 3) * 0.6 + noise(x / 11, y / 11) * 0.4;
+            const v = 255 * (1 - 0.10 * n);
+            const i = (y * W + x) * 4;
+            d[i] = v; d[i + 1] = v; d[i + 2] = v; d[i + 3] = 255;
+        }
+    }
+    ctx.putImageData(img, 0, 0);
+    return c;
+}
+
+// ---------- warm dusk washes (colour lives only in light) ----------
+function warmWash(ctx) {
+    ctx.save();
+    ctx.globalCompositeOperation = "multiply";
+    const g = ctx.createLinearGradient(0, 250, 0, 640);
+    g.addColorStop(0, "rgba(236,180,130,0)");
+    g.addColorStop(0.75, "rgba(236,170,115,0.20)");
+    g.addColorStop(1, "rgba(236,165,110,0.10)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 250, W, 390);
+
+    // pale setting sun, wet edge
+    const sx = 1010, sy = 588;
+    const sg = ctx.createRadialGradient(sx, sy, 0, sx, sy, 64);
+    sg.addColorStop(0, "rgba(214,104,62,0.16)");
+    sg.addColorStop(0.78, "rgba(212,100,60,0.22)");
+    sg.addColorStop(0.9, "rgba(200,88,52,0.30)");
+    sg.addColorStop(1, "rgba(220,120,70,0)");
+    ctx.filter = "blur(2.5px)";
+    ctx.fillStyle = sg;
+    ctx.beginPath(); ctx.arc(sx, sy, 64, Math.PI, 0); ctx.lineTo(sx + 64, 600); ctx.lineTo(sx - 64, 600); ctx.fill();
+    ctx.filter = "none";
+
+    // sun's broken reflection on the water
+    for (let i = 0; i < 14; i++) {
+        const y = 612 + i * i * 1.6 + rr(-2, 2);
+        const w = rr(40, 110) * (1 - i / 18);
+        ctx.fillStyle = `rgba(222,120,72,${0.22 * (1 - i / 16)})`;
+        ctx.fillRect(sx - w / 2 + rr(-14, 14), y, w, rr(1.5, 3.5));
+    }
+    ctx.restore();
+}
+
+function glow(ctx, x, y, r, a) {
+    ctx.save();
+    ctx.globalCompositeOperation = "multiply";
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, `rgba(240,150,55,${a})`);
+    g.addColorStop(0.5, `rgba(238,165,80,${a * 0.55})`);
+    g.addColorStop(1, "rgba(240,180,110,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+}
+
+// ---------- spline ----------
+function spline(pts, step = 1.5) {
+    const outPts = [];
+    for (let i = 0; i < pts.length - 1; i++) {
+        const p0 = pts[Math.max(i - 1, 0)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(i + 2, pts.length - 1)];
+        const seg = Math.hypot(p2[0] - p1[0], p2[1] - p1[1]);
+        const m = Math.max(2, Math.ceil(seg / step));
+        for (let k = 0; k < m; k++) {
+            const t = k / m, t2 = t * t, t3 = t2 * t;
+            const f = (a, b, c, d) => 0.5 * (2 * b + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t2 + (-a + 3 * b - 3 * c + d) * t3);
+            outPts.push([f(p0[0], p1[0], p2[0], p3[0]), f(p0[1], p1[1], p2[1], p3[1])]);
+        }
+    }
+    outPts.push(pts[pts.length - 1]);
+    return outPts;
+}
+
+const profiles = {
+    brush: t => Math.pow(Math.sin(Math.PI * Math.min(1, t * 1.15 + 0.04)), 0.55),
+    tip: t => Math.pow(1 - t, 0.8) * Math.min(1, t * 8 + 0.3),
+    rise: t => Math.min(1, 0.15 + t * 1.1) * Math.min(1, (1 - t) * 10),
+    even: t => Math.min(1, t * 12 + 0.2) * Math.min(1, (1 - t) * 12 + 0.2),
+    nail: t => Math.min(1, t * 6 + 0.5) * Math.pow(1 - t, 0.35),
+};
+
+// ---------- brush stroke ----------
+let strokeIndex = 0;
+function stroke(dry, wet, pts, o) {
+    const opt = Object.assign({ w: 6, tone: 0.8, dryness: 0.2, profile: "brush", bristles: 14, loaded: 0, body: 0.5, fade: 0.6, gap: 26 }, o);
+    const S = spline(pts, 1.2);
+    const cum = [0];
+    for (let i = 1; i < S.length; i++) cum.push(cum[i - 1] + Math.hypot(S[i][0] - S[i - 1][0], S[i][1] - S[i - 1][1]));
+    const L = cum[cum.length - 1] || 1;
+    const prof = profiles[opt.profile];
+    const si = strokeIndex++ * 17.31;
+    const nrm = S.map((p, i) => {
+        const a = S[Math.max(0, i - 1)], b = S[Math.min(S.length - 1, i + 1)];
+        const dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1;
+        return [-dy / l, dx / l];
+    });
+    const width = i => opt.w * prof(cum[i] / L) * (1 + 0.18 * (noise(si, cum[i] / 40) - 0.5));
+
+    // wet body: gives the stroke a soft halo
+    if (opt.body > 0) {
+        const fill = opt.tone * opt.body * Math.pow(1 - opt.dryness, 1.6);
+        if (fill > 0.01) {
+            wet.beginPath();
+            for (let i = 0; i < S.length; i++) {
+                const w2 = width(i) / 2;
+                const x = S[i][0] + nrm[i][0] * w2, y = S[i][1] + nrm[i][1] * w2;
+                i === 0 ? wet.moveTo(x, y) : wet.lineTo(x, y);
+            }
+            for (let i = S.length - 1; i >= 0; i--) {
+                const w2 = width(i) / 2;
+                wet.lineTo(S[i][0] - nrm[i][0] * w2, S[i][1] - nrm[i][1] * w2);
+            }
+            wet.closePath();
+            wet.fillStyle = ink(fill);
+            wet.fill();
+        }
+    }
+
+    // bristles: carry the texture, break up when dry ("flying white")
+    const nb = opt.bristles;
+    dry.lineCap = "round";
+    for (let b = 0; b < nb; b++) {
+        const off = nb === 1 ? 0 : (b / (nb - 1)) * 2 - 1 + rr(-0.06, 0.06);
+        const load0 = rr(0.8, 1.1);
+        dry.lineWidth = Math.max(0.6, (opt.w / nb) * rr(1.4, 2.6));
+        for (let i = 1; i < S.length; i++) {
+            const t = cum[i] / L;
+            if (prof(t) < 0.03) continue;
+            const brk = noise(b * 3.7 + si, cum[i] / opt.gap);
+            if (brk < opt.dryness * (0.35 + 0.9 * t)) continue;
+            const w0 = width(i - 1) / 2, w1 = width(i) / 2;
+            const side = 1 + opt.loaded * off * 0.6;
+            const a = Math.min(1, opt.tone * load0 * (1 - opt.fade * 0.55 * t) * side * (0.42 + 0.25 * noise(b * 1.3, cum[i] / 60)));
+            dry.strokeStyle = ink(a);
+            dry.beginPath();
+            dry.moveTo(S[i - 1][0] + nrm[i - 1][0] * off * w0, S[i - 1][1] + nrm[i - 1][1] * off * w0);
+            dry.lineTo(S[i][0] + nrm[i][0] * off * w1, S[i][1] + nrm[i][1] * off * w1);
+            dry.stroke();
+        }
+    }
+}
+
+// ---------- soft mass (never a flat fill) ----------
+function mass(ctx, poly, o) {
+    const opt = Object.assign({ tone: 0.5, tone2: null, jitter: 3 }, o);
+    const pts = [];
+    for (let i = 0; i < poly.length; i++) {
+        const a = poly[i], b = poly[(i + 1) % poly.length];
+        const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+        const n = Math.max(1, Math.ceil(len / 5));
+        const nx = -(b[1] - a[1]) / (len || 1), ny = (b[0] - a[0]) / (len || 1);
+        for (let k = 0; k < n; k++) {
+            const t = k / n;
+            const j = (noise((a[0] + t * (b[0] - a[0])) / 9, (a[1] + t * (b[1] - a[1])) / 9) - 0.5) * 2 * opt.jitter;
+            pts.push([a[0] + t * (b[0] - a[0]) + nx * j, a[1] + t * (b[1] - a[1]) + ny * j]);
+        }
+    }
+    let y0 = Infinity, y1 = -Infinity;
+    pts.forEach(p => { y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); });
+    const g = ctx.createLinearGradient(0, y0, 0, y1);
+    g.addColorStop(0, ink(opt.tone));
+    g.addColorStop(1, ink(opt.tone2 ?? opt.tone * 0.75));
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    pts.forEach((p, i) => i === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1]));
+    ctx.closePath();
+    ctx.fill();
+}
+
+function blob(ctx, cx, cy, r, tone, squash = 1) {
+    const poly = [];
+    for (let i = 0; i < 18; i++) {
+        const a = (i / 18) * Math.PI * 2;
+        const rad = r * (0.85 + 0.3 * noise(cx / 7 + Math.cos(a), cy / 7 + Math.sin(a)));
+        poly.push([cx + Math.cos(a) * rad, cy + Math.sin(a) * rad * squash]);
+    }
+    mass(ctx, poly, { tone, tone2: tone * 0.8, jitter: r * 0.12 });
+}
+
+// ---------- layer group: wet + dry pair, composited with bleed and edge pigment ----------
+function group() {
+    const wetC = makeCanvas(), dryC = makeCanvas();
+    return { wetC, dryC, wet: wetC.getContext("2d"), dry: dryC.getContext("2d") };
+}
+function flatten(g) {
+    const res = makeCanvas(), ctx = res.getContext("2d");
+    // wet: soft bleed
+    ctx.filter = "blur(3px)";
+    ctx.drawImage(g.wetC, 0, 0);
+    // edge pigment: small blur minus large blur
+    const a = makeCanvas(), actx = a.getContext("2d");
+    actx.filter = "blur(1.2px)"; actx.drawImage(g.wetC, 0, 0);
+    actx.filter = "blur(9px)"; actx.globalCompositeOperation = "destination-out"; actx.globalAlpha = 0.92; actx.drawImage(g.wetC, 0, 0);
+    ctx.filter = "none";
+    ctx.globalAlpha = 0.85; ctx.drawImage(a, 0, 0);
+    ctx.globalAlpha = 1;
+    // dry: crisp, slight paper tooth
+    ctx.filter = "blur(0.35px)";
+    ctx.drawImage(g.dryC, 0, 0);
+    ctx.filter = "none";
+    return res;
+}
+
+// fade the bottom of a layer into mist (horizontal mask, never sloped)
+function mistFade(c, yTop, yBottom) {
+    const ctx = c.getContext("2d");
+    ctx.save();
+    ctx.globalCompositeOperation = "destination-in";
+    const g = ctx.createLinearGradient(0, yTop, 0, yBottom);
+    g.addColorStop(0, "rgba(0,0,0,1)");
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, yBottom);
+    ctx.restore();
+}
+
+// broken, fading reflection under a waterline
+function reflect(src, waterY, alpha, depth) {
+    const r = makeCanvas(), ctx = r.getContext("2d");
+    ctx.save();
+    ctx.translate(0, waterY * 2);
+    ctx.scale(1, -1);
+    ctx.drawImage(src, 0, 0);
+    ctx.restore();
+    ctx.clearRect(0, 0, W, waterY);
+    ctx.globalCompositeOperation = "destination-out";
+    for (let y = waterY; y < waterY + depth; y += rr(2, 6)) {
+        ctx.fillStyle = `rgba(0,0,0,${rr(0.4, 1)})`;
+        ctx.fillRect(0, y, W, rr(1, 3.5));
+    }
+    const g = ctx.createLinearGradient(0, waterY, 0, waterY + depth);
+    g.addColorStop(0, "rgba(0,0,0,0.25)");
+    g.addColorStop(1, "rgba(0,0,0,1)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, waterY, W, H - waterY);
+    ctx.globalCompositeOperation = "source-over";
+    const fin = makeCanvas(), fctx = fin.getContext("2d");
+    fctx.globalAlpha = alpha;
+    fctx.filter = "blur(1.5px)";
+    // slight horizontal wobble per band
+    for (let y = waterY; y < waterY + depth; y += 4) {
+        const dx = Math.sin(y * 0.21) * 3;
+        fctx.drawImage(r, 0, y, W, 4, dx, y, W, 4);
+    }
+    return fin;
+}
+
+// ---------- the scene ----------
+async function main() {
+    await document.fonts.load('110px "Tiro Bangla"', "শেষ খেয়া");
+    paintPaper();
+    warmWash(octx);
+    const layers = [];
+    const HORIZON = 600;
+
+    // far hijol forest on the horizon
+    {
+        const g = group();
+        const blobs = [];
+        for (let x = -20; x < W + 40; x += rr(26, 70)) {
+            if (x > 780 && x < 1240) continue;          // open water where the sun sets
+            blobs.push([x, rr(14, 38)]);
+        }
+        const top = x => {
+            let h = 4 + 2 * noise(x / 20, 3);
+            blobs.forEach(([cx, r]) => { const d = r * r - (x - cx) * (x - cx); if (d > 0) h = Math.max(h, Math.sqrt(d) * 0.75 + 4); });
+            return HORIZON - h;
+        };
+        const poly = [];
+        for (let x = 0; x <= W; x += 6) poly.push([x, top(x)]);
+        poly.push([W, HORIZON + 6], [0, HORIZON + 6]);
+        mass(g.wet, poly, { tone: 0.16, tone2: 0.07, jitter: 2 });
+        // a few dry tree strokes for texture
+        blobs.forEach(([cx, r]) => {
+            if (rand() < 0.5) stroke(g.dry, g.wet, [[cx, HORIZON + 2], [cx + rr(-2, 2), HORIZON - r * 0.6]], { w: 1.6, tone: 0.18, dryness: 0.4, bristles: 3, body: 0, profile: "tip" });
+        });
+        const c = flatten(g);
+        mistFade(c, HORIZON - 30, HORIZON + 6);
+        layers.push(c, reflect(c, HORIZON + 4, 0.35, 40));
+    }
+
+    // birds
+    {
+        const g = group();
+        [[820, 300, 1], [858, 322, 0.8], [900, 292, 0.9], [775, 336, 0.7], [948, 318, 0.6]].forEach(([x, y, s]) => {
+            stroke(g.dry, g.wet, [[x - 11 * s, y - 3 * s], [x - 4 * s, y - 5 * s], [x, y]], { w: 2.4 * s, tone: 0.55, dryness: 0.1, bristles: 3, profile: "nail", body: 0.3 });
+            stroke(g.dry, g.wet, [[x, y], [x + 5 * s, y - 6 * s], [x + 13 * s, y - 5 * s]], { w: 2.4 * s, tone: 0.55, dryness: 0.1, bristles: 3, profile: "tip", body: 0.3 });
+        });
+        layers.push(flatten(g));
+    }
+
+    // flooded hijol trees, mid distance right
+    {
+        const g = group();
+        const trees = [[1500, 655, 1], [1610, 650, 0.8], [1700, 660, 0.6]];
+        trees.forEach(([x, wl, s]) => {
+            stroke(g.dry, g.wet, [[x, wl + 4], [x - 3 * s, wl - 30 * s], [x + 2 * s, wl - 62 * s]], { w: 7 * s, tone: 0.42, dryness: 0.3, bristles: 6, profile: "rise", loaded: 0.8, body: 0.6 });
+            stroke(g.dry, g.wet, [[x - 1, wl - 48 * s], [x - 26 * s, wl - 72 * s]], { w: 3 * s, tone: 0.4, dryness: 0.35, bristles: 4, profile: "tip", body: 0.4 });
+            stroke(g.dry, g.wet, [[x + 1, wl - 52 * s], [x + 30 * s, wl - 78 * s]], { w: 3 * s, tone: 0.4, dryness: 0.35, bristles: 4, profile: "tip", body: 0.4 });
+            for (let k = 0; k < 16; k++) {
+                const dx = rr(-60, 60);
+                blob(g.wet, x + dx * s, wl - (86 + rr(-16, 16) + Math.abs(dx) * -0.12) * s, rr(16, 30) * s, rr(0.2, 0.34), 0.58);
+            }
+            blob(g.wet, x, wl - 94 * s, 26 * s, 0.4, 0.55);
+            // moss dots for leaf texture
+            for (let k = 0; k < 40; k++) {
+                const dx = rr(-62, 62) * s, dy = rr(-28, 20) * s;
+                g.dry.fillStyle = ink(rr(0.35, 0.7));
+                g.dry.beginPath();
+                g.dry.ellipse(x + dx, wl - 92 * s + dy, rr(1.5, 3.2) * s, rr(1, 2.2) * s, rr(0, 3), 0, Math.PI * 2);
+                g.dry.fill();
+            }
+        });
+        const c = flatten(g);
+        layers.push(c, reflect(c, 662, 0.4, 90));
+    }
+
+    // the house on stilts, veranda, Amma and Dadi, banana trees
+    {
+        const g = group();
+        const WL = 728;
+        // banana trees behind
+        [[200, 650, 1], [252, 652, 0.8]].forEach(([x, y, s]) => {
+            stroke(g.dry, g.wet, [[x, y], [x + 4, y - 50 * s], [x + 10 * s, y - 95 * s]], { w: 9 * s, tone: 0.34, dryness: 0.25, bristles: 7, profile: "rise", loaded: 0.6, body: 0.6 });
+            for (let k = 0; k < 6; k++) {
+                const ang = -Math.PI / 2 + rr(-1.5, 1.5);
+                const len = rr(55, 90) * s;
+                const sx = x + 10 * s, sy = y - 95 * s;
+                const ex = sx + Math.cos(ang) * len, ey = sy + Math.sin(ang) * len * 0.6 + len * 0.35;
+                stroke(g.dry, g.wet, [[sx, sy], [(sx + ex) / 2 + Math.cos(ang) * 8, Math.min(sy, ey) - 18], [ex, ey]], { w: rr(10, 15) * s, tone: 0.3, dryness: 0.45, bristles: 10, profile: "brush", loaded: 0.9, body: 0.55 });
+            }
+        });
+        // stilts
+        [345, 395, 455, 515, 575, 625].forEach(x => {
+            stroke(g.dry, g.wet, [[x, 648], [x + rr(-3, 3), 690], [x + rr(-5, 5), WL + 12]], { w: rr(4.5, 7), tone: rr(0.7, 0.9), dryness: 0.35, bristles: 5, profile: "nail", loaded: 1, body: 0.5, gap: 18 });
+        });
+        // walls
+        mass(g.wet, [[372, 570], [608, 570], [608, 648], [372, 648]], { tone: 0.24, tone2: 0.32, jitter: 2 });
+        for (let x = 384; x < 600; x += rr(14, 22)) {
+            stroke(g.dry, g.wet, [[x, 574], [x + rr(-1, 1), 646]], { w: 1.5, tone: 0.3, dryness: 0.55, bristles: 2, profile: "even", body: 0 });
+        }
+        // door, and the window where the kupi burns
+        mass(g.wet, [[452, 594], [492, 594], [492, 648], [452, 648]], { tone: 0.6, tone2: 0.7, jitter: 1.5 });
+        mass(g.wet, [[536, 596], [570, 596], [570, 622], [536, 622]], { tone: 0.12, tone2: 0.15, jitter: 1 });
+        // tin roof, slightly curved, loaded brim
+        mass(g.wet, [[352, 578], [628, 578], [590, 520], [490, 508], [390, 520]], { tone: 0.66, tone2: 0.48, jitter: 2.5 });
+        stroke(g.dry, g.wet, [[344, 580], [490, 584], [636, 578]], { w: 8, tone: 0.95, dryness: 0.2, bristles: 8, profile: "brush", loaded: 1, body: 0.4 });
+        stroke(g.dry, g.wet, [[392, 520], [490, 507], [588, 520]], { w: 3, tone: 0.8, dryness: 0.5, bristles: 4, profile: "even", body: 0 });
+        // floor and veranda
+        stroke(g.dry, g.wet, [[236, 650], [450, 652], [640, 649]], { w: 6, tone: 0.92, dryness: 0.15, bristles: 6, profile: "even", loaded: 1, body: 0.4 });
+        mass(g.wet, [[238, 604], [372, 584], [372, 594], [242, 614]], { tone: 0.55, jitter: 1.5 });
+        [250, 300].forEach(x => stroke(g.dry, g.wet, [[x, 610], [x, 650]], { w: 2.5, tone: 0.8, dryness: 0.25, bristles: 2, profile: "even", body: 0.3 }));
+        // Amma, seated, belly round
+        blob(g.wet, 318, 610, 7.5, 0.82);
+        mass(g.wet, [[312, 618], [324, 618], [337, 632], [341, 642], [336, 650], [304, 650], [306, 632]], { tone: 0.72, tone2: 0.85, jitter: 1.4 });
+        stroke(g.dry, g.wet, [[324, 621], [340, 636], [334, 649]], { w: 2.5, tone: 0.95, dryness: 0.1, bristles: 3, profile: "brush", loaded: 1, body: 0.2 });
+        // Dadi, bent, turning her bangle
+        blob(g.wet, 357, 620, 7, 0.82);
+        mass(g.wet, [[350, 624], [362, 626], [370, 640], [368, 650], [344, 650], [345, 634]], { tone: 0.7, tone2: 0.85, jitter: 1.4 });
+        stroke(g.dry, g.wet, [[352, 626], [346, 640], [360, 646]], { w: 2.3, tone: 0.95, dryness: 0.1, bristles: 3, profile: "brush", loaded: 1, body: 0.2 });
+        const c = flatten(g);
+        layers.push(reflect(c, WL, 0.4, 120), c);
+    }
+
+    // water: mostly blank paper, a few dry streaks
+    {
+        const g = group();
+        for (let i = 0; i < 26; i++) {
+            const y = rr(675, 1010), x = rr(-100, W - 100), len = rr(60, 340) * (0.5 + (y - 660) / 400);
+            stroke(g.dry, g.wet, [[x, y], [x + len / 2, y + rr(-2, 2)], [x + len, y + rr(-1, 1)]], { w: rr(1.5, 3.5) * (0.6 + (y - 660) / 420), tone: rr(0.12, 0.26), dryness: 0.6, bristles: 3, profile: "even", body: 0 });
+        }
+        layers.push(flatten(g));
+    }
+
+    // Mitu's boat, Mitu rowing, the lantern
+    const LANTERN = [1082, 768];
+    {
+        const g = group();
+        const WL = 806;
+        // hull
+        mass(g.wet, [[1012, 762], [1060, 786], [1220, 796], [1385, 784], [1430, 756], [1404, 790], [1360, 808], [1220, 818], [1080, 808], [1036, 792]], { tone: 0.72, tone2: 0.9, jitter: 1.6 });
+        stroke(g.dry, g.wet, [[1014, 764], [1048, 796], [1140, 814], [1220, 818], [1320, 812], [1400, 790], [1432, 757]], { w: 11, tone: 0.98, dryness: 0.22, bristles: 10, profile: "brush", loaded: 1, body: 0.4 });
+        stroke(g.dry, g.wet, [[1018, 763], [1080, 785], [1220, 796], [1360, 785], [1428, 757]], { w: 3.5, tone: 0.85, dryness: 0.35, bristles: 4, profile: "even", body: 0 });
+        // Mitu standing at the stern
+        const fx = 1350, fy = 790;
+        blob(g.wet, fx + 1, fy - 92, 9, 0.9);
+        stroke(g.dry, g.wet, [[fx - 4, fy - 96], [fx - 12, fy - 86], [fx - 14, fy - 70]], { w: 4, tone: 0.95, dryness: 0.25, bristles: 4, profile: "tip", body: 0.3 }); // braid
+        mass(g.wet, [[fx - 7, fy - 82], [fx + 9, fy - 82], [fx + 17, fy - 30], [fx - 15, fy - 30]], { tone: 0.38, tone2: 0.5, jitter: 1.5 });
+        stroke(g.dry, g.wet, [[fx + 8, fy - 81], [fx + 13, fy - 56], [fx + 17, fy - 31]], { w: 4, tone: 0.95, dryness: 0.15, bristles: 4, profile: "brush", loaded: 1, body: 0.3 });
+        stroke(g.dry, g.wet, [[fx - 15, fy - 31], [fx + 1, fy - 29], [fx + 17, fy - 32]], { w: 3, tone: 0.9, dryness: 0.3, bristles: 3, profile: "even", body: 0 });
+        stroke(g.dry, g.wet, [[fx - 4, fy - 30], [fx - 5, fy + 2]], { w: 3, tone: 0.95, dryness: 0.1, bristles: 2, profile: "even", body: 0.3 });
+        stroke(g.dry, g.wet, [[fx + 5, fy - 30], [fx + 7, fy + 2]], { w: 3, tone: 0.95, dryness: 0.1, bristles: 2, profile: "even", body: 0.3 });
+        // orna trailing in the wind
+        stroke(g.dry, g.wet, [[fx + 6, fy - 82], [fx + 30, fy - 78], [fx + 52, fy - 86], [fx + 78, fy - 80]], { w: 7, tone: 0.42, dryness: 0.45, bristles: 6, profile: "tip", loaded: 0.7, body: 0.5 });
+        // arms and oar
+        stroke(g.dry, g.wet, [[fx - 4, fy - 78], [fx - 18, fy - 66], [fx - 26, fy - 76]], { w: 3, tone: 0.95, dryness: 0.1, bristles: 3, profile: "even", body: 0.3 });
+        stroke(g.dry, g.wet, [[fx + 2, fy - 76], [fx - 16, fy - 52], [fx - 40, fy - 44]], { w: 3, tone: 0.95, dryness: 0.1, bristles: 3, profile: "even", body: 0.3 });
+        stroke(g.dry, g.wet, [[fx - 22, fy - 96], [fx - 50, fy - 30], [fx - 88, fy + 46]], { w: 4.5, tone: 0.98, dryness: 0.12, bristles: 4, profile: "even", loaded: 1, body: 0.3 });
+        mass(g.wet, [[fx - 84, fy + 32], [fx - 76, fy + 38], [fx - 92, fy + 74], [fx - 102, fy + 68]], { tone: 0.3, tone2: 0.1, jitter: 1.5 });
+        // lantern on the bow
+        const [lx, ly] = LANTERN;
+        mass(g.wet, [[lx - 9, ly + 12], [lx + 9, ly + 12], [lx + 9, ly + 17], [lx - 9, ly + 17]], { tone: 0.95, jitter: 0.6 });
+        stroke(g.dry, g.wet, [[lx - 8, ly + 12], [lx - 10, ly - 2], [lx - 7, ly - 13]], { w: 2.4, tone: 0.95, dryness: 0.1, bristles: 2, profile: "even", body: 0 });
+        stroke(g.dry, g.wet, [[lx + 8, ly + 12], [lx + 10, ly - 2], [lx + 7, ly - 13]], { w: 2.4, tone: 0.95, dryness: 0.1, bristles: 2, profile: "even", body: 0 });
+        mass(g.wet, [[lx - 8, ly - 13], [lx + 8, ly - 13], [lx + 4, ly - 20], [lx - 4, ly - 20]], { tone: 0.95, jitter: 0.6 });
+        stroke(g.dry, g.wet, [[lx - 7, ly - 18], [lx, ly - 30], [lx + 7, ly - 18]], { w: 1.6, tone: 0.9, dryness: 0.2, bristles: 2, profile: "even", body: 0 });
+        // oar rings in the water (open ellipses, ~1.86π)
+        const ox = fx - 94, oy = fy + 50;
+        [[22, 0.5], [44, 0.36], [70, 0.24], [100, 0.14]].forEach(([r, t], k) => {
+            const a0 = rr(0, 6.28), pts = [];
+            for (let i = 0; i <= 40; i++) {
+                const a = a0 + (i / 40) * Math.PI * 1.86;
+                pts.push([ox + Math.cos(a) * r * 1.4, oy + Math.sin(a) * r * 0.24]);
+            }
+            stroke(g.dry, g.wet, pts, { w: 2.6 - k * 0.4, tone: t, dryness: 0.3, bristles: 3, profile: "even", body: 0.2, gap: 14 });
+        });
+        // wake behind the boat
+        for (let i = 0; i < 6; i++) {
+            const y = 806 + i * 7 + rr(-2, 2), x = 1420 + i * 18;
+            stroke(g.dry, g.wet, [[x, y], [x + 120 + i * 30, y + rr(-2, 2)]], { w: 2, tone: 0.3 - i * 0.03, dryness: 0.55, bristles: 2, profile: "tip", body: 0 });
+        }
+        const c = flatten(g);
+        layers.push(reflect(c, WL, 0.38, 110), c);
+    }
+
+    // foreground: reeds left, water hyacinth right
+    {
+        const g = group();
+        // loose pale wash anchoring the corner
+        stroke(g.dry, g.wet, [[-40, 1050], [160, 1035], [420, 1048]], { w: 70, tone: 0.16, dryness: 0.55, bristles: 22, profile: "brush", loaded: 0.6, body: 0.9, gap: 40 });
+        for (let i = 0; i < 19; i++) {
+            const x = rr(10, 290), h = rr(120, 280), lean = rr(-20, 70);
+            stroke(g.dry, g.wet, [[x, H + 10], [x + lean * 0.15, H - h * 0.45], [x + lean * 0.55, H - h * 0.8], [x + lean, H - h]], { w: rr(6, 12), tone: rr(0.45, 0.9), dryness: rr(0.3, 0.55), bristles: 8, profile: "tip", loaded: 1, body: 0.55, gap: 20 });
+        }
+        // a few bent reed leaves
+        for (let i = 0; i < 5; i++) {
+            const x = rr(60, 240), y = rr(900, 980), d = rand() < 0.5 ? -1 : 1;
+            stroke(g.dry, g.wet, [[x, y], [x + 40 * d, y - 30], [x + 85 * d, y - 12]], { w: rr(6, 9), tone: rr(0.5, 0.8), dryness: 0.35, bristles: 7, profile: "tip", loaded: 1, body: 0.5 });
+        }
+        for (let i = 0; i < 16; i++) {
+            blob(g.wet, rr(1590, 1900), rr(985, 1055), rr(12, 24), rr(0.45, 0.7), 0.55);
+        }
+        for (let i = 0; i < 26; i++) {
+            g.dry.fillStyle = ink(rr(0.6, 0.95));
+            g.dry.beginPath();
+            g.dry.ellipse(rr(1580, 1910), rr(965, 1045), rr(1.8, 4), rr(1.4, 3), rr(0, 3), 0, Math.PI * 2);
+            g.dry.fill();
+        }
+        layers.push(flatten(g));
+    }
+
+    // composite ink onto paper
+    octx.save();
+    octx.globalCompositeOperation = "multiply";
+    layers.forEach(l => octx.drawImage(l, 0, 0));
+    octx.restore();
+
+    // warm light from the lantern and the kupi: the only strong colour
+    glow(octx, LANTERN[0], LANTERN[1], 70, 0.5);
+    glow(octx, LANTERN[0], LANTERN[1], 22, 0.6);
+    glow(octx, 553, 609, 34, 0.55);
+    glow(octx, 364, 640, 6, 0.8);          // bangle glint
+    octx.save();
+    octx.globalCompositeOperation = "multiply";
+    for (let i = 0; i < 9; i++) {
+        octx.fillStyle = `rgba(236,150,60,${0.32 * (1 - i / 10)})`;
+        octx.fillRect(LANTERN[0] - rr(6, 16), 818 + i * 7, rr(14, 30), rr(1.5, 3));
+    }
+    octx.restore();
+
+    // title, brushed: dry breakup + wet halo
+    {
+        const t = makeCanvas(), tctx = t.getContext("2d");
+        tctx.font = '112px "Tiro Bangla"';
+        tctx.fillStyle = ink(0.92);
+        tctx.fillText("শেষ খেয়া", 1450, 250);
+        tctx.font = '30px "Tiro Bangla"';
+        tctx.fillStyle = ink(0.55);
+        tctx.fillText("অধ্যায় ১ — সন্ধ্যা", 1462, 304);
+        tctx.globalCompositeOperation = "destination-out";
+        for (let i = 0; i < 1400; i++) {
+            const x = rr(1440, 1900), y = rr(150, 315);
+            if (noise(x / 14, y / 5) < 0.4) {
+                tctx.fillStyle = `rgba(0,0,0,${rr(0.3, 0.9)})`;
+                tctx.fillRect(x, y, rr(4, 14), rr(0.8, 1.8));
+            }
+        }
+        octx.save();
+        octx.globalCompositeOperation = "multiply";
+        octx.globalAlpha = 0.25; octx.filter = "blur(3px)"; octx.drawImage(t, 0, 0);
+        octx.globalAlpha = 1; octx.filter = "blur(0.4px)"; octx.drawImage(t, 0, 0);
+        octx.restore();
+    }
+
+    // granulate everything with the paper grain, then vignette
+    octx.save();
+    octx.globalCompositeOperation = "multiply";
+    octx.globalAlpha = 0.6;
+    octx.drawImage(makeGrain(), 0, 0);
+    octx.globalAlpha = 1;
+    const v = octx.createRadialGradient(W / 2, H / 2, H * 0.45, W / 2, H / 2, W * 0.62);
+    v.addColorStop(0, "rgba(255,255,255,0)");
+    v.addColorStop(1, "rgba(150,130,105,0.22)");
+    octx.fillStyle = v;
+    octx.fillRect(0, 0, W, H);
+    octx.restore();
+
+    document.title = "done";
+}
+main();
+</script>
+</body>
+</html>

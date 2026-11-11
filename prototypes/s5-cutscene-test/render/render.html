@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>renderer</title></head>
+<body style="margin:0;background:#222">
+<canvas id="out" width="1920" height="1080"></canvas>
+<script src="../shared.js"></script>
+<script src="engine.js"></script>
+<script src="scene.js"></script>
+<script>
+// Offline renderer page. render.py drives it: paint the plate once,
+// export sprites for the game, then render every frame of every clip.
+const out = document.getElementById("out");
+const octx = out.getContext("2d");
+let plate = null;
+
+window.R = {
+    init() {
+        plate = paintPlate();
+        return true;
+    },
+    plate() {
+        return plate.toDataURL("image/png");
+    },
+    mitu(side, p) {
+        const s = paintMitu({ side, p });
+        return [s.img.toDataURL("image/png"), s.refl.toDataURL("image/png")];
+    },
+    kalam(phase) {
+        const s = paintKalam(phase, 0);
+        return [s.img.toDataURL("image/png"), s.refl.toDataURL("image/png")];
+    },
+    frame(name, i) {
+        clipFrame(octx, plate, name, i / S5.FPS);
+        return out.toDataURL("image/jpeg", 0.93);
+    },
+    durations() {
+        return Object.fromEntries(Object.entries(CLIPS).map(([k, v]) => [k, v.duration]));
+    },
+};
+document.title = "ready";
+</script>
+</body>
+</html>
