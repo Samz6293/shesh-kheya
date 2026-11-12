@@ -70,15 +70,17 @@ Each activity is its own file in `src/activities/`. None can be failed. Numbers 
 - **After:** the oil meter stays in a screen corner for the rest of the game.
 - **Echo:** Chapter 2, lamp light radius; decision about giving oil to Kalam Majhi.
 
-### A4 — ছন্দে বৈঠা মারা (Rowing in rhythm) — the core mechanic
-- **Hint:** `rowingHint` appears small on screen, then fades.
-- **Control:** A = left stroke, D = right stroke.
+### A4 — নাও চালানো (Steering the boat) — the core mechanic
+- **Hint:** `steerHint` appears small on screen, then fades.
+- **Control:** D = right, A = left, W = away from the camera, S = toward it. Keys can be held and combined.
 - **Rules:**
-  - Alternating A/D in a steady rhythm → boat glides smoothly, oar sound is sweet.
-  - Pressing the same side repeatedly → boat turns toward that side. This is how you steer.
-  - Broken rhythm → boat rocks and slows, but **never** sinks or gets stuck.
-- **Used:** for the whole game. Build and tune this first (see `06-build-plan.md`).
-- **Space:** side view with depth (D2): the boat moves along the water and toward/away from the camera. Tested in `prototypes/s5-cutscene-test/`.
+  - The boat faces the direction of the journey (D18): left to right when leaving home (S3, S4), right to left when going back (S5, S6). The player only steers.
+  - Each oar stroke pushes the boat forward, so it surges and eases instead of gliding; the bow lifts slightly on each pull and a small wake trails behind. Mitu's oar strokes, the water rings and the oar sound play by themselves while the boat moves.
+  - Releasing the keys lets the boat glide to a stop.
+  - Nothing can go wrong: the boat **never** sinks or gets stuck, and stops softly at the edge of the water.
+- **Used:** for the whole game.
+- **Space:** side view with depth (D2): the boat moves along the water and toward/away from the camera.
+- **Changed after the M1 play-test (D17):** the script's rhythm rowing (alternate A/D in time, repeat one side to turn) felt too strange to control. The script's Sylheti name for this activity is "ছন্দে বৈঠা মারা".
 
 ### Memories — বাবার ৩টা স্মৃতি (optional)
 - Three objects float in the water during S3, each marked by a faint light: গামছা, বাঁশি, টিফিন বাটি.
@@ -134,7 +136,7 @@ Each activity is its own file in `src/activities/`. None can be failed. Numbers 
 | Baby kick | Hold mouse | Ch 3: same action, weaker movement |
 | Paan | Drag + click | Ch 3: Mitu's paan in Dadi's hand; Ending 2: floating bangle and paan box |
 | Lantern oil | Hold mouse | Ch 2: light size; giving oil to Kalam |
-| Rowing | A / D | Whole game |
+| Steering the boat | W A S D | Whole game |
 | 3 memories | E | Ending 1: flute in the empty boat; hidden ending: Abba plays the flute |
 | Net | Space on time | Ch 3: Rahim caught in the same net |
 | Big fish | Drag | Ch 4: fish in the pot in every ending |

@@ -22,12 +22,12 @@ Branch for the first build: `feature/chapter-1`. dh1 reviews and commits per mil
 - `scenes/ch1/s5-kalam/` with all five files, and `PushBoat`.
 
 **Done when:**
-- [ ] `npm run render -- s5` produces the plate, sprites, 3 clips and tracks.
-- [ ] S5 plays like the prototype, both choices.
-- [ ] `check-joins` passes for all S5 joins.
-- [ ] Rowing feels as good as the prototype or better.
+- [x] `npm run render -- s5` produces the plate, sprites, 3 clips and tracks.
+- [x] S5 plays like the prototype, both choices.
+- [x] `check-joins` passes for all S5 joins.
+- [x] Rowing feels as good as the prototype or better.
 
-**Checkpoint: dh1 plays S5 and approves the feel before anything else is built.**
+**Checkpoint: dh1 plays S5 and approves the feel before anything else is built.** Approved by dh1 on 2026-11-12.
 
 ## M2 — Save, transitions, scene order
 - `save.ts` (checkpoints, flags, settings), Continue on the start screen, `?scene=` jump, fade helpers, title cards.

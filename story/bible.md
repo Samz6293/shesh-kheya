@@ -11,6 +11,7 @@ A short narrative game set on a haor in Sylhet during the monsoon. Mitu's father
 - Colour comes only from light (lantern, kupi, bangle, lightning). Everything else is ink on paper.
 - Each activity is short (under 30 s) and comes back once later as an echo.
 - Dialogue: Sylheti line + English subtitle. Stage directions are for animation and never shown.
+- Direction of travel: home is always on the left of the screen. Going out from home, Mitu moves left to right; coming back home, right to left. Scripts don't need to say this; the animation follows it.
 
 ## Characters
 
@@ -41,7 +42,7 @@ A short narrative game set on a haor in Sylhet during the monsoon. Mitu's father
 | Baby kick (hold mouse) | Same action, the movement is weaker | Ch 3 |
 | Paan for Dadi (drag + click) | Mitu's paan in Dadi's hand; floating bangle and paan box | Ch 3, Ending 2 |
 | Lantern oil (hold mouse) | Light size; giving oil to Kalam | Ch 2 |
-| Rowing (A/D) | Used in every chapter | all |
+| Steering the boat (W A S D) | Used in every chapter | all |
 | Three memories (E) | The flute in the empty boat; Abba plays the flute | Ending 1, hidden ending |
 | Net pull (Space on time) | Rahim Chacha caught in the same net | Ch 3 |
 | Big fish (drag) | The fish in the pot | Ch 4, every ending |
@@ -57,4 +58,4 @@ A short narrative game set on a haor in Sylhet during the monsoon. Mitu's father
 | 4 | (endings: 1, 2, hidden) | To write |
 
 ## Controls the game already has
-Hold mouse · drag · click · A/D rowing · Space on time · hold Space · E to pick up. Anything else a new chapter needs is listed in that chapter's pull request for dh1.
+Hold mouse · drag · click · W A S D steering · Space on time · hold Space · E to pick up. Anything else a new chapter needs is listed in that chapter's pull request for dh1.

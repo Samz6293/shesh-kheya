@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link rel="stylesheet" href="/src/styles/main.css">
+</head>
+<body>
+    <!-- the game: a 16:9 stage. All text is put in by code from src/content -->
+    <div id="stage">
+        <!-- live frames and clip frames are both drawn here -->
+        <canvas id="game"></canvas>
+
+        <!-- clip <video> elements are added here by ClipPlayer; never shown directly -->
+        <div id="clips" class="clips"></div>
+
+        <!-- text and menus sit on top -->
+        <div id="ui">
+            <div id="dialogue" class="dialogue">
+                <div class="dialogue-name"></div>
+                <div class="dialogue-line"></div>
+                <div class="dialogue-sub"></div>
+            </div>
+            <div id="choice" class="choice"></div>
+            <div id="hint" class="hint">
+                <div class="hint-text"></div>
+                <div class="hint-sub"></div>
+                <div class="hint-bar"><div class="hint-fill"></div></div>
+            </div>
+            <div id="fade" class="fade on"></div>
+            <div id="start" class="screen">
+                <h1 class="screen-title"></h1>
+                <p class="screen-sub"></p>
+                <button id="begin" class="screen-button" disabled></button>
+            </div>
+            <pre id="hud" class="hud"></pre>
+        </div>
+    </div>
+
+    <script type="module" src="/src/game/main.ts"></script>
+</body>
+</html>

@@ -13,11 +13,13 @@
         "chapterTitle": { "sy": "অধ্যায় ১ — সন্ধ্যা", "en": "Chapter 1 — Dusk" },
         "nextChapterTitle": { "sy": "অধ্যায় ২ — ঝড়", "en": "Chapter 2 — Storm" },
         "rowingHint": { "sy": "A আর D পালা করে চাপো, বৈঠা মারতে।", "en": "Press A and D in turn to row." },
+        "steerHint": { "sy": "W A S D চাপিয়া নাও চালাও।", "en": "Use W A S D to steer the boat." },
         "pickupHint": { "sy": "E চেপে তোলো", "en": "Press E to pick up" },
         "netHint": { "sy": "দাগ মিললে Space চাপো", "en": "Press Space when the marks line up" },
         "pushHint": { "sy": "Space চেপে ধরে রাখো", "en": "Hold Space" },
         "choiceHelp": { "sy": "সাহায্য করো", "en": "Help" },
-        "choiceGoHome": { "sy": "বাড়ি ফিরে যাও", "en": "Go home" }
+        "choiceGoHome": { "sy": "বাড়ি ফিরে যাও", "en": "Go home" },
+        "begin": { "sy": "শুরু করো", "en": "Begin" }
     },
     "beats": {
         "s1.opening": [

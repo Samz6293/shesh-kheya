@@ -59,12 +59,14 @@ Chapter 1 moves from dusk to night. In ink, that means:
 - Wide, still camera; the scene is a painting the characters move across. No camera movement in live parts; slow pans allowed in clips.
 - Keep the sky empty enough for text: **dialogue and choices sit in the sky** at the top; key hints sit at the bottom.
 - Figures are small (100–130 px tall near the camera). Faces are never shown in detail.
+- **Figures are solid.** Ink is translucent, but nothing behind a figure or boat shows through it: a pale dress hides the boat behind it. `composeFrame` clears each sprite's outline to the backing (paper and sky) before its ink goes on.
 - Foreground reeds or hyacinth in a corner frame the shot.
+- **Direction of travel (D18).** Home is always on the left. Going out from home, Mitu moves and faces left to right; coming back, right to left. This holds for every scene and incident, in clips and live play.
 
 ## Motion
 
 - Live sprites have a small set of poses (Mitu rowing: rest + 4 frames per side). Clips may move smoothly. Live motion that must match a clip uses the same poses at the join.
-- Everything idle breathes: boats bob (4 s), water rings spread (`r ∝ age^0.6`, fade over 2.4 s), flames flicker.
+- Everything idle breathes: reeds sway, boats bob (4 s), water rings spread (`r ∝ age^0.6`, fade over 2.4 s), flames flicker.
 - Screen shake is rare and small (baby kick, lightning), under 4 px.
 - Lightning: two quick white pulses, then a slow fade.
 
@@ -73,6 +75,8 @@ Chapter 1 moves from dusk to night. In ink, that means:
 | Asset | What | Made by |
 |---|---|---|
 | Plate | everything that never moves, with paper, grain and vignette | `paint.ts` → `plate.png` |
+| Front | the near bank and reeds, drawn in front of every boat; reeds sway in the wind (4 s and 2 s waves, so joins match) | `paintPlate.ts` → `front.png` + `front.json` |
+| Backing | the plate's paper and sky only, no scenery: what shows inside a figure's outline under its ink | `paintPlate.ts` → `backing.png` |
 | Close-up plates | for paan, lantern, net activities | `paint.ts` |
 | Sprites | each character/boat per pose, plus its reflection | `paint.ts` → PNGs |
 | Clips | cutscenes | `clips.ts` → MP4 |

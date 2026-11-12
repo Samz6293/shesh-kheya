@@ -47,7 +47,7 @@ shesh-kheya/
         render.ts                 Playwright + ffmpeg driver: npm run render -- s5
         check-joins.ts            compares game frames with clip frames at every join
     public/
-        assets/<scene>/           plate.png, <sprite>_<pose>.png, <sprite>_<pose>_refl.png
+        assets/<scene>/           plate.png, backing.png, front.png + front.json, <sprite>_<pose>.png, <sprite>_<pose>_refl.png
         video/<scene>/            <clip>.mp4, <clip>.track.json
         audio/                    real recordings, <id>.ogg + <id>.m4a (later)
         fonts/
@@ -146,14 +146,14 @@ export default async function playKalam(game: Game) {
 - Esc skips to the last frame. Hold lines that were skipped still appear afterwards; timed lines are dropped.
 - Pausing (Esc menu, hidden tab) pauses the video and the sound.
 
-## Rowing controller (`Boat.ts`)
+## Boat controller (`Boat.ts`)
 
-Side view with depth (decision D2): x moves along the water, z moves toward (1) or away from (0) the camera; sprites scale with z. Starting values come from the prototype (`game.js`, `CFG`):
+Side view with depth (decision D2): x moves along the water, z moves toward (1) or away from (0) the camera; sprites scale with z. Direct steering (decision D17); tuning lives in `CONFIG` in `Boat.ts`:
 
-- A stroke is in rhythm when it alternates side and comes 0.3–1.0 s after the previous one.
-- In rhythm: strong forward push, tiny turn (alternating strokes cancel out). Same side repeated: weaker push, clear turn. Too fast: weak push and the boat rolls. After a pause: a normal "start" stroke.
-- Drag slows the boat smoothly; edges clamp softly; nothing can get stuck.
-- A is the boat's left (port). Facing right that is the far side, facing left the near side. The oar sprite follows.
+- D / A push the boat right / left along x; W / S push it away from / toward the camera along z. A diagonal is no faster than one direction.
+- **Strokes move the boat.** While keys are held a stroke starts every 0.65 s, and the boat is pushed only while the oar pulls (a half-sine over 0.36 s). Between pulls water drag slows it, so it surges and eases like a real rowing boat (about 115–210 px/s). On each pull the bow lifts a little (`strokePitch`) and the boat leaves small wake rings off the stern (`WAKE` in `shared/mituBoat.ts`). Clips do the same: `surged()` in `clips.ts` speeds and slows the path in step with the strokes.
+- Drag slows the boat smoothly when the keys are released; the edges of the water stop it softly; nothing can get stuck.
+- The boat faces the scene's `HEADING` (decision D18: `JOURNEY.OUTWARD` = right when leaving home, `JOURNEY.HOMEWARD` = left when going back), passed to `new Boat(game, x, z, facing)`. While it is being steered, a stroke plays every 0.65 s on alternating sides (sprite frames, a water ring, the oar sound), the same pace as the strokes in the clips.
 
 ## Save (`game/save.ts`)
 

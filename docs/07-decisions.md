@@ -12,7 +12,7 @@ Each decision has a recommendation. **Open** ones need dh1's answer before the F
 
 ### D2 — How the world is laid out for rowing
 **Status:** Decided
-**Choice:** Side view with depth. The boat moves along the water and toward/away from the camera, scaling with distance. Pressing one side repeatedly turns it. Tested in the prototype.
+**Choice:** Side view with depth. The boat moves along the water and toward/away from the camera, scaling with distance. Tested in the prototype. How the player moves it changed in D17.
 
 ### D3 — Who paints the art
 **Status:** Decided
@@ -78,3 +78,15 @@ Each decision has a recommendation. **Open** ones need dh1's answer before the F
 ### D16 — Renderer language
 **Status:** Decided
 **Choice:** TypeScript in the same Vite project, driven by a Node script with Playwright. The prototype used Python for the driver; one language is easier to maintain.
+
+### D17 — Boat controls
+**Status:** Decided (after the M1 play-test)
+**Choice:** Direct steering with W A S D: D forward, A back, W away from the camera, S toward it. The boat always faces the same way, and Mitu's strokes play by themselves while it moves.
+**Why:** The script's rhythm rowing (alternate A/D in time, repeat one side to turn) felt too strange to control.
+**Affects:** the script calls A4 "rowing in rhythm"; the writer should know the rhythm part is gone. The old hint line `rowingHint` is unused; the new one is `steerHint`.
+
+### D18 — Direction of travel (the journey rule)
+**Status:** Decided (dh1, after the S5 review)
+**Choice:** Home is always on the left. When a journey goes from home to somewhere, Mitu travels and faces **left to right**. When she is going back home, **right to left**. Every scene and every incident follows it, in clips and in live play. Others met on the way (Kalam) face the way they are going too.
+**In code:** `JOURNEY.OUTWARD` (1) / `JOURNEY.HOMEWARD` (-1) in `src/shared/mituBoat.ts`. Each water scene sets `HEADING` in its `layout.ts`; it is the boat's `sx`, the direction clips move in, and the sign of any push. D and A still mean right and left on screen.
+**Ch. 1:** S3 and S4 are outward (left to right). S5 and S6 are homeward (right to left). S5 was mirrored for this: Mitu rows in from the right, Kalam is stuck between her and home, and on "Go home" she rows on past him instead of turning round.

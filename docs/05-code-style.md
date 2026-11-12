@@ -12,10 +12,10 @@ The game is built by FABLE in one long session, so explanations live in the repo
 
 - **File header.** Every file starts with a 2–4 line comment: what it does, why it is built this way, what the alternative was.
   ```ts
-  // Rowing controller. Each A/D press is a stroke; alternating strokes in time
-  // push the boat forward, repeated strokes on one side turn it.
+  // Boat controller. The player steers directly: D and A move the boat forward
+  // and back along the water, W and S move it away from and toward the camera.
   // Plain velocity + drag instead of a physics library: the boat only needs
-  // speed and heading, not collisions.
+  // a speed in two directions.
   ```
 - **New concepts are labelled** where they first appear, with one line and the doc page:
   ```ts
