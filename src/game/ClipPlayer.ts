@@ -139,7 +139,7 @@ export default class ClipPlayer {
         this.anchor.scale = f[2];
         this.anchor.sx = f[3];
         this.anchor.roll = f[6] ?? 0;         // tracks rendered before pitch existed have no roll
-        drawLights(target, this.anchor, this.game.flags.lampOil, f[4], 1 - f[5]);
+        drawLights(target, this.anchor, this.game.progress.flags.lampOil, f[4], 1 - f[5]);
         if (alpha < 1) {
             ctx.globalAlpha = alpha;
             ctx.drawImage(this.scratch.canvas, 0, 0);

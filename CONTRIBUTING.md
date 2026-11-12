@@ -23,6 +23,10 @@ That's all. Claude turns the PDF into the game's dialogue files in the same pull
 ### With Claude Code
 Open the project in Claude Code (see below), give it the PDF and say **"add this as chapter 2"**. Claude puts the script in place, creates the dialogue file, and saves it as a pull request.
 
+## Where is the game at? Type "start"
+
+Open Claude Code on the project and type **start**. Claude tells you which chapter is being made, which scenes are finished, and what's next. When all your chapters are finished it says so, and that's your cue to add the next chapter.
+
 ## Changing something (a line, a name, a fix)
 
 Use Claude Code and say what you want in your own words, for example: "Change Rahim Chacha's second line in chapter 1 to …". When you're happy, say **"save my work"**.

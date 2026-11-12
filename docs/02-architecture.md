@@ -79,6 +79,8 @@ shesh-kheya/
             Hint.ts               key hints + progress bar
             Sound.ts              ambience layers, one-shots, fades
             save.ts               load/save/migrate
+            Progress.ts           flags + checkpoint; saves on every change
+            Card.ts               title cards (game title, chapter cards)
             Boat.ts               rowing controller (used in most scenes)
             activities/           BabyKick, PaanMaking, LanternOil, MemoryPickup, NetPull, FishLift, PushBoat
         styles/main.css
@@ -124,14 +126,14 @@ export default async function playKalam(game: Game) {
     const pick = await game.choice.ask(["choiceHelp", "choiceGoHome"]);
 
     if (pick === "choiceHelp") {
-        saveFlags({ helpedKalam1: true });
+        game.progress.setFlags({ helpedKalam1: true });
         await rowTo(game, layout.CONTACT);
         await new PushBoat(game).run();
         await game.loop.waitSync();
         await game.clips.play("s5", "helped", { keepLastFrame: true });
     }
     else {
-        saveFlags({ helpedKalam1: false });
+        game.progress.setFlags({ helpedKalam1: false });
         await game.dialogue.hold("s5.declined", 0);
         await game.loop.waitSync();
         await game.clips.play("s5", "declined", { keepLastFrame: true });
@@ -177,6 +179,8 @@ export interface ChapterOneFlags {
 ```
 
 One key, `shesh-kheya-save`. Save at the start of each scene and after any flag change. Old versions migrate; broken data falls back to defaults. `localStorage` calls are wrapped in `try/catch`.
+
+Scenes never touch the save directly. `game/Progress.ts` holds the flags and checkpoint: scenes read `game.progress.flags` and change them with `game.progress.setFlags({ ... })`, which saves at once; `main.ts` calls `game.progress.reach(sceneId)` as each scene starts. Continue restarts the checkpoint scene from its beginning with the flags as last saved, so a scene must accept its own flags being set already. After the last scene the checkpoint is `end` and Continue is hidden.
 
 ## Performance budget
 

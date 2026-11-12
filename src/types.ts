@@ -11,6 +11,8 @@ import type Hint from "./game/Hint";
 import type Sound from "./game/Sound";
 import type Fade from "./game/Fade";
 import type Debug from "./game/Debug";
+import type Progress from "./game/Progress";
+import type Card from "./game/Card";
 
 // a point as [x, y]. A tuple (fixed-length array) instead of an interface,
 // because the brush code does a lot of arithmetic on points
@@ -276,6 +278,23 @@ export interface ChapterOneFlags {
     fishGiven: boolean
 }
 
+// player settings, kept when a new game starts. Nothing reads them yet:
+// the pause menu (M9) will offer volume and text speed
+export interface Settings {
+    volume: number                // 0..1
+    textSpeed: number             // 1 = normal; higher types faster
+}
+
+// Everything kept in localStorage under one key. `version` lets an old save
+// be upgraded when this shape changes; `checkpoint` is the scene to resume at.
+export interface SaveData {
+    version: number
+    chapter: number
+    checkpoint: string            // a scene id like "s4", or CHAPTER_END
+    flags: ChapterOneFlags
+    settings: Settings
+}
+
 // the live part of a scene: the loop calls these every frame
 export interface LiveScene {
     update(dt: number): void
@@ -300,7 +319,8 @@ export interface Game {
     sound: Sound
     fade: Fade
     debug: Debug
-    flags: ChapterOneFlags
+    card: Card
+    progress: Progress
 }
 
 export type ScenePlay = (game: Game) => Promise<void>;
