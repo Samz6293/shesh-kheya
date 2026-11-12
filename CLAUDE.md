@@ -8,6 +8,8 @@ Two people work here (see `CONTRIBUTING.md`):
 - **The developer** (dh1, repo owner) works on everything else, following the rules below.
 If you can't tell which one you're talking to, ask once.
 
+**"start"**: when either of them types "start", use the `start` skill. It checks `docs/SCENE_STATUS.md` and the current chapter. For dh1 it builds the next scene in order, one at a time, and stops for his play-test. For the writer it only reports status. When every chapter with a script is done, it says: "All provided chapters are rendered and live. Tibbian needs to add more story."
+
 Only dh1 merges into `main`. Never push to `main` yourself; the writer's changes always arrive as a pull request.
 
 ## For code work
