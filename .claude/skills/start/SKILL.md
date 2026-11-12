@@ -32,15 +32,19 @@ Nothing to commit; don't touch `SCENE_STATUS.md`.
 ## 3c. dh1 typed "start": build, one scene at a time
 Rows are worked strictly in table order. Look at the first row that isn't `approved`:
 
+- **`ready for frame review`**: don't render and don't start anything new. Remind dh1 which clips wait for him in the frame review page (links below) and wait. Notes he leaves: read `render/notes/<scene>.json` and the pictures beside it, fix the code, mark each note fixed with a one-line reply; the row stays `ready for frame review`. His greenlight ("good", "render it"): go to step 7.
 - **`ready for play-test`**: don't start anything new. Remind dh1 which scene is waiting, how to run it (`npm run dev`, `?debug`), and what to check. Wait for his verdict.
 - **`not started` or `in progress`**: build it, following the normal workflow:
   1. Set the row to `in progress`.
   2. Read the docs in the order `CLAUDE.md` gives, and that milestone in `docs/06-build-plan.md`. Story wording comes from the script and `dialogue.json`, never from you.
   3. Build it to the hard rules in `CLAUDE.md` and the standing rules in the docs, including: direction of travel (D18: outward left to right, homeward right to left), solid figures (`backing.png`), a foreground `front` layer that sways, rowing that surges with strokes, characters who leave actually leaving the screen, and dialogue as in S2 (D19: every line waits for a click, Space or Enter; lines live between clips, never in a clip; the speaker light over whoever talks).
-  4. Render it (`npm run render -- <scene>`), run `npm run check-joins`, `npx tsc --noEmit` and `npm run build`. Look at frames of every clip yourself: overlaps, exits, direction.
-  5. Write the `docs/BUILD_LOG.md` entry with a suggested commit message, and the `docs/LEARNING.md` lines.
-  6. Set the row to `ready for play-test` and tell dh1 what to play and check. **Stop there.** Don't start the next row.
-- **dh1 asks for changes after playing**: fix them, re-render, re-check; the row stays `ready for play-test`.
+  4. **Don't render yet.** Run `npx tsc --noEmit` and look at frames of every clip yourself in the frame review page (`preview.html`, headless is fine): overlaps, exits, direction.
+  5. Set the row to `ready for frame review` and send dh1 one link per clip, `http://localhost:5173/preview.html#<scene>/<clip>/0`, with what to look at in each. **Stop there** until he greenlights the clips (see `ready for frame review` above).
+  6. (Notes from him: fix in code, he checks again in the page. Still no render.)
+  7. After his greenlight: render it (`npm run render -- <scene>`), run `npm run check-joins` and `npm run build`.
+  8. Write the `docs/BUILD_LOG.md` entry with a suggested commit message, and the `docs/LEARNING.md` lines.
+  9. Set the row to `ready for play-test` and tell dh1 what to play and check. **Stop there.** Don't start the next row.
+- **dh1 asks for changes after playing**: fix them in code. If a fix changes what a clip shows, send him that clip's frame review link and re-render only after his greenlight; then re-check. The row stays `ready for play-test`. Notes he leaves in the page: read `render/notes/<scene>.json` and the pictures beside it, and mark each note fixed with a reply (`docs/02-architecture.md`, "Frame review").
 - **dh1 confirms** ("good", "approved", "push"): set the row to `approved` with the date. Then git as dh1 tells you that time. By default, give him the commands. `CLAUDE.md` still says you don't commit, push or merge unless he asks you to in that conversation, and never push to `main` yourself.
 
 A milestone that isn't a scene (save system, polish) is worked the same way, with the same play-test stop.
