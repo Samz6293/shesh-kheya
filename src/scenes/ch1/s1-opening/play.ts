@@ -7,7 +7,6 @@ import type { Game } from "../../../types";
 const CONFIG = {
     AMBIENCE: { amb_water: 0.6 },             // water alone (04-audio.md)
     WATER_ALONE: 3.5,             // seconds of black and water before any text
-    NARRATION: 9,                 // seconds the line is up: about 2.7 s typing + time to read both languages
     LINE_FADE: 0.4,               // the dialogue box's fade out (--fade in main.css)
     GAP: 1.2,                     // seconds of black between narration, title and chapter card
     TITLE_HOLD: 3,
@@ -22,7 +21,7 @@ export default async function playOpening(game: Game): Promise<void> {
     await game.loop.wait(CONFIG.WATER_ALONE);
 
     game.dialogue.setPlace("centre");
-    await game.dialogue.timed("s1.opening", 0, CONFIG.NARRATION);
+    await game.dialogue.hold("s1.opening", 0);
     await game.loop.wait(CONFIG.LINE_FADE);
     game.dialogue.setPlace("sky");
     await game.loop.wait(CONFIG.GAP - CONFIG.LINE_FADE);

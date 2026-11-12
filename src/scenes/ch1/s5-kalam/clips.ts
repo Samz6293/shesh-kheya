@@ -8,7 +8,7 @@ import { MITU_BOAT, WAKE, oarGeometry, strokePitch, wakeRing } from "../../../sh
 import { defaultFlags } from "../../../shared/flags";
 import paintMitu from "../../../render/paintMitu";
 import { paintKalam } from "./paint";
-import { PUSH_DX, S5, kalamPhase, s5Frame } from "./layout";
+import { MITU_AFTER_HELP, PUSH_DX, S5, kalamPhase, s5Frame } from "./layout";
 import type { ClipDef, FrameState, MituPose, Ring, S5ClipLook, Side, SpriteArt } from "../../../types";
 
 const ROW = { STROKE: 0.4, RECOVER: 0.25, GAP: S5.ROW_GAP };    // seconds
@@ -21,7 +21,6 @@ const DIR = S5.HEADING;                                         // -1: homeward,
 // off-screen and far-away points, mirrored to match the direction of travel
 const OFF = {
     INTRO_FROM: STAGE.W + 280,    // Mitu rows in from beyond the right edge
-    KALAM_FREE: 360,              // where Kalam's freed boat glides to, towards home
     DECLINED_TO: -380,            // Mitu rows on towards home, out past the left edge
 };
 
@@ -111,22 +110,37 @@ export const CLIPS: Record<string, ClipDef<S5ClipLook>> = {
     },
 
     // starts where the push ends (both boats moved PUSH_DISTANCE homeward, full darkness):
-    // Kalam's boat slides free towards home, he thanks her and nods; fade to black
+    // Kalam's boat slides free towards home and comes to rest. His thanks are
+    // said live after it (every line waits for the player), then `farewell`
     helped: {
         duration: S5.CLIP.helped,
         state(t) {
             const kalam0 = S5.KALAM.x + PUSH_DX, mitu0 = S5.CONTACT.x + PUSH_DX;
-            const kalamX = (at: number) => lerp(kalam0, OFF.KALAM_FREE, ease(at / 3.2));
+            const kalamX = (at: number) => lerp(kalam0, S5.KALAM_FREE, ease(at / 3.2));
             const scale = depthScale(S5.KALAM.z);
-            const nodding = t > 10.2 && t < 11.4;
             // rings where his pole goes in, behind him
             const rings = [0.15, 0.7, 1.4].map((born, i) => ({ x: kalamX(born) - DIR * 190 * scale, y: depthY(S5.KALAM.z) + 2, born, scale, a0: i * 2.1 }));
             return {
-                t, darkness: 1, flash: 0, fade: t > S5.CLIP.helped - FADE ? (t - (S5.CLIP.helped - FADE)) / FADE : 0, oil: OIL, marker: null,
-                mitu: { x: lerp(mitu0, mitu0 - DIR * 26, ease(t / 3)), z: S5.CONTACT.z, sx: DIR, roll: 0 },
+                t, darkness: 1, flash: 0, fade: 0, oil: OIL, marker: null,
+                mitu: { x: lerp(mitu0, MITU_AFTER_HELP, ease(t / 3)), z: S5.CONTACT.z, sx: DIR, roll: 0 },
                 pose: MITU_BOAT.REST,
-                kalamX: kalamX(t), kalamPhase: t < 2 ? t / 2 : 0, kalamNod: nodding ? Math.sin(Math.PI * (t - 10.2) / 1.2) : 0,
+                kalamX: kalamX(t), kalamPhase: t < 2 ? t / 2 : 0, kalamNod: 0,
                 rings,
+            };
+        },
+    },
+
+    // after his thanks: Kalam nods to her, and the picture fades to black
+    farewell: {
+        duration: S5.CLIP.farewell,
+        state(t) {
+            const fadeFrom = S5.CLIP.farewell - FADE;
+            return {
+                t, darkness: 1, flash: 0, fade: t > fadeFrom ? (t - fadeFrom) / FADE : 0, oil: OIL, marker: null,
+                mitu: { x: MITU_AFTER_HELP, z: S5.CONTACT.z, sx: DIR, roll: 0 },
+                pose: MITU_BOAT.REST,
+                kalamX: S5.KALAM_FREE, kalamPhase: 0, kalamNod: t > 0.3 && t < 1.5 ? Math.sin(Math.PI * (t - 0.3) / 1.2) : 0,
+                rings: [],
             };
         },
     },

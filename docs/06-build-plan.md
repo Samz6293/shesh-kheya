@@ -46,8 +46,8 @@ Branch for the first build: `feature/chapter-1`. dh1 reviews and commits per mil
 - `BabyKick` on the plate; `PaanMaking` and `LanternOil` on close-up plates; Dadi's ambient lines; oil meter appears and stays.
 
 **Done when:**
-- [ ] Each activity finishes within 30 s and can't be failed.
-- [ ] `lampOil` is saved; the lantern glow uses it from here on.
+- [x] Each activity finishes within 30 s and can't be failed.
+- [x] `lampOil` is saved; the lantern glow uses it from here on.
 
 ## M5 — S3 Rowing and memories
 - Clip `board`, then live rowing; gamchha, flute, tiffin floating with a faint glow; `MemoryPickup` (E); flute phrase; picked memories appear in the boat (live overlay).

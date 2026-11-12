@@ -36,7 +36,7 @@ Rows are worked strictly in table order. Look at the first row that isn't `appro
 - **`not started` or `in progress`**: build it, following the normal workflow:
   1. Set the row to `in progress`.
   2. Read the docs in the order `CLAUDE.md` gives, and that milestone in `docs/06-build-plan.md`. Story wording comes from the script and `dialogue.json`, never from you.
-  3. Build it to the hard rules in `CLAUDE.md` and the standing rules in the docs, including: direction of travel (D18: outward left to right, homeward right to left), solid figures (`backing.png`), a foreground `front` layer that sways, rowing that surges with strokes, characters who leave actually leaving the screen.
+  3. Build it to the hard rules in `CLAUDE.md` and the standing rules in the docs, including: direction of travel (D18: outward left to right, homeward right to left), solid figures (`backing.png`), a foreground `front` layer that sways, rowing that surges with strokes, characters who leave actually leaving the screen, and dialogue as in S2 (D19: every line waits for a click, Space or Enter; lines live between clips, never in a clip; the speaker light over whoever talks).
   4. Render it (`npm run render -- <scene>`), run `npm run check-joins`, `npx tsc --noEmit` and `npm run build`. Look at frames of every clip yourself: overlaps, exits, direction.
   5. Write the `docs/BUILD_LOG.md` entry with a suggested commit message, and the `docs/LEARNING.md` lines.
   6. Set the row to `ready for play-test` and tell dh1 what to play and check. **Stop there.** Don't start the next row.

@@ -90,3 +90,17 @@ Each decision has a recommendation. **Open** ones need dh1's answer before the F
 **Choice:** Home is always on the left. When a journey goes from home to somewhere, Mitu travels and faces **left to right**. When she is going back home, **right to left**. Every scene and every incident follows it, in clips and in live play. Others met on the way (Kalam) face the way they are going too.
 **In code:** `JOURNEY.OUTWARD` (1) / `JOURNEY.HOMEWARD` (-1) in `src/shared/mituBoat.ts`. Each water scene sets `HEADING` in its `layout.ts`; it is the boat's `sx`, the direction clips move in, and the sign of any push. D and A still mean right and left on screen.
 **Ch. 1:** S3 and S4 are outward (left to right). S5 and S6 are homeward (right to left). S5 was mirrored for this: Mitu rows in from the right, Kalam is stuck between her and home, and on "Go home" she rows on past him instead of turning round.
+
+### D19 — Dialogue: every line waits
+**Status:** Decided (dh1, after the S2 play-test)
+**Choice:** Every spoken line types out and then waits for the player. A small pulsing mark at the bottom-right of the box shows it is waiting. A click anywhere on the screen, Space or Enter shows the next line (changed from "click on the box" after the second S2 play-test). The first line of a scene appears by itself. This applies to every scene (S1's narration and S5 too). Lines are never said inside a clip: a scene that needs lines mid-action splits the clip (S5's `helped` + `farewell`). Timed lines no longer exist in the code.
+**Also:** the speaker's name always shows above the line, and in wide shots a soft warm light sits over the speaker's head while they talk (`game/SpeakerLight.ts`). Close-ups show the name only.
+
+### D20 — S2 staging (after the S2 play-test)
+**Status:** Decided (dh1)
+- **Baby kick:** a first kick (thud, ripple), Amma gasps and lays her hand on her belly, then her line; an ink hand pulses on her belly; **one click** (not a hold); Mitu steps over, kneels, touches; the kick she feels (thud, ring of light, she startles); then the two lines.
+- **To Dadi:** Dadi chuckles, pulls her paan box round and pats it; Mitu sits by her; Dadi's line; the close-up.
+- **Paan close-up:** Dadi sits across the plate (lap, both hands, bangle on her wrist, face above the picture); the box is open in front. The leaf must go first; then the pieces pause while Dadi turns her bangle and says both lines; then lime and supari in either order, then fold. A picture checklist (no words) shows progress.
+- **Lantern:** Dadi reaches behind her for the lantern and holds it out (her first line before, "Take this..." while she holds it); Mitu takes it and sets it down by the bottle; the close-up.
+- **Ending:** Mitu picks up the lantern and walks off along a walkway to the ghat (right edge); slow fade to black.
+- **No new text:** prompts and the checklist are pictures. **No music** until a real recording exists.

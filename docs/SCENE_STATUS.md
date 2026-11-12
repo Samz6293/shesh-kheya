@@ -18,7 +18,7 @@ Script: `docs/source/chapter-1-script.pdf` · Design: `docs/01-game-design.md` �
 |---|---|---|---|---|
 | — | Save, transitions, scene order | M2 | approved | Approved by dh1, 2026-11-12 |
 | S1 | শুরু (Opening) | M3 | approved | No video. Approved by dh1, 2026-11-12 |
-| S2 | ঘর (Home) | M4 | not started | |
+| S2 | ঘর (Home) | M4 | approved | Approved by dh1, 2026-11-13 |
 | S3 | বৈঠা ও স্মৃতি (Rowing and memories) | M5 | not started | Outward: left to right (D18) |
 | S4 | রহিম চাচা | M6 | not started | Outward: left to right (D18) |
 | S5 | কালাম মাঝি | M1 | approved | Approved by dh1 and merged to `main`, 2026-11-12 (`e5fc2f0`) |

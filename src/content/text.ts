@@ -16,6 +16,11 @@ export function line(beatId: BeatId, index: number): Line {
     return found;
 }
 
+// how many lines a beat has (a scene says them all, one after another)
+export function lineCount(beatId: BeatId): number {
+    return content.beats[beatId].length;
+}
+
 export function screen(id: ScreenId): ScreenText {
     return content.screens[id];
 }

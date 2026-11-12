@@ -53,6 +53,15 @@ export async function loadSprites(scene: string, names: string[]): Promise<Recor
     return art;
 }
 
+// pictures with no reflection (close-up plates and their pieces), by name
+export async function loadStills(scene: string, names: string[]): Promise<Record<string, HTMLImageElement>> {
+    const stills: Record<string, HTMLImageElement> = {};
+    await Promise.all(names.map(async (name) => {
+        stills[name] = await loadImage(spritePath(scene, name));
+    }));
+    return stills;
+}
+
 export async function loadTrack(scene: string, clip: string): Promise<Track> {
     const res = await fetch(trackPath(scene, clip));
     if (!res.ok) throw new Error(`Missing track: ${trackPath(scene, clip)}`);

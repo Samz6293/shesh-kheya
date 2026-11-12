@@ -54,6 +54,11 @@ const api: RenderApi = {
         });
     },
 
+    // close-up plates and loose pieces (scenes that have them)
+    stills() {
+        return (current().stills?.() ?? []).map((job) => [job.name, png(job.paint())]);
+    },
+
     clips() {
         return current().clips;
     },
@@ -61,19 +66,20 @@ const api: RenderApi = {
     // one frame of a clip, without lights (the game draws those live)
     frame(clip, index) {
         if (!plate) throw new Error("Call R.init(scene) first");
-        composeFrame(ctx, plate, current().clipFrame(clip, index / STAGE.FPS), false);
+        composeFrame(ctx, plate, current().clipFrame(clip, index / STAGE.FPS), false, !current().isFrontLive);
         return out.toDataURL("image/png");
     },
 
-    // where the boat is on every frame, so the game can draw lights on top of the video
+    // where the boat is on every frame, so the game can draw lights on top of the video.
+    // A clip with no boat (S2) still gets a track, for its darkness and fade; scale 0 = no boat
     track(clip) {
         const track: Track = { fps: STAGE.FPS, frames: [] };
         const count = Math.round(current().clips[clip] * STAGE.FPS);
         for (let i = 0; i <= count; i++) {
             const st = current().clipFrame(clip, i / STAGE.FPS);
-            if (!st.boat) throw new Error(`Clip ${clip} has no boat to track`);
             const round = (v: number) => Math.round(v * 1000) / 1000;
-            track.frames.push([round(st.boat.x), round(st.boat.y), round(st.boat.scale), round(st.boat.sx), round(st.darkness), round(st.fade), round(st.boat.roll)]);
+            const b = st.boat ?? { x: 0, y: 0, scale: 0, sx: 1, roll: 0 };
+            track.frames.push([round(b.x), round(b.y), round(b.scale), round(b.sx), round(st.darkness), round(st.fade), round(b.roll)]);
         }
         return track;
     },

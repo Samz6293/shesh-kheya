@@ -1,28 +1,25 @@
 // The dialogue box: an HTML overlay above the canvas, so text is never part
-// of a video and a wording fix never needs a re-render. Lines type out letter
-// by letter; "hold" lines wait for a click or Enter, "timed" lines leave alone.
+// of a video and a wording fix never needs a re-render. The same box and the
+// same rule in every scene (D19): a line types out letter by letter, then
+// waits; a small mark pulses in the box's bottom-right corner until the player
+// clicks anywhere or presses Space or Enter (main.ts). Nothing leaves by
+// itself, and lines are never said inside a clip: scenes say them between clips.
 import { line, speakerName } from "../content/text";
 import type { BeatId, Line } from "../types";
 
 const CONFIG = {
     TYPE_MS: 38,                  // per letter
-    TIMED_SECONDS: 3,             // a timed line with no length of its own
 };
-
-interface Pending {
-    key: string
-    promise: Promise<void>
-}
 
 export default class Dialogue {
     private box: HTMLElement;
     private nameEl: HTMLElement;
     private lineEl: HTMLElement;
     private subEl: HTMLElement;
+    private nextEl: HTMLElement;
+    private speakerId: string | null = null;
     private typing: number | null = null;
-    private timer: number | null = null;
     private onAdvance: (() => void) | null = null;
-    private pending: Pending | null = null;
     private finishTyping: () => void = () => {};
 
     // New here: Intl.Segmenter. Splits text into what a reader sees as one letter
@@ -32,61 +29,21 @@ export default class Dialogue {
 
     constructor(box: HTMLElement) {
         this.box = box;
-        // safe: index.html has these three elements inside #dialogue
+        // safe: index.html has these four elements inside #dialogue
         this.nameEl = box.querySelector(".dialogue-name") as HTMLElement;
         this.lineEl = box.querySelector(".dialogue-line") as HTMLElement;
         this.subEl = box.querySelector(".dialogue-sub") as HTMLElement;
+        this.nextEl = box.querySelector(".dialogue-next") as HTMLElement;
     }
 
-    // show a line and wait for the player to move on.
-    // If a clip cue already put this line up, wait for that one instead of showing it twice
+    // who is talking right now (a speaker id from dialogue.json), or null.
+    // Scenes use it to light up the speaker in the picture (game/SpeakerLight.ts)
+    get speaker(): string | null {
+        return this.speakerId;
+    }
+
+    // show a line and resolve when the player moves on
     hold(beatId: BeatId, index: number): Promise<void> {
-        const key = `${beatId}[${index}]`;
-        if (this.pending?.key === key) {
-            const promise = this.pending.promise;
-            this.pending = null;
-            return promise;
-        }
-        return this.startHold(beatId, index);
-    }
-
-    // a clip cue shows a hold line while the clip is still playing
-    cueHold(beatId: BeatId, index: number): void {
-        this.pending = { key: `${beatId}[${index}]`, promise: this.startHold(beatId, index) };
-    }
-
-    // show a line that hides by itself (lines spoken inside a clip, ambient lines)
-    timed(beatId: BeatId, index: number, seconds = CONFIG.TIMED_SECONDS): Promise<void> {
-        this.show(line(beatId, index));
-        return new Promise((resolve) => {
-            this.timer = window.setTimeout(() => {
-                this.timer = null;
-                this.hide();
-                resolve();
-            }, seconds * 1000);
-        });
-    }
-
-    // drop a timed line now (a skipped clip); hold lines stay
-    hideTimed(): void {
-        if (this.timer === null) return;
-        clearTimeout(this.timer);
-        this.timer = null;
-        this.hide();
-    }
-
-    // "sky": the usual place, above the scene. "centre": the middle of the
-    // stage, for narration over black (the opening). Change it while the box is hidden
-    setPlace(place: "sky" | "centre"): void {
-        this.box.classList.toggle("centre", place === "centre");
-    }
-
-    // click or Enter: first finish the typing, the next one moves on
-    advance(): void {
-        this.onAdvance?.();
-    }
-
-    private startHold(beatId: BeatId, index: number): Promise<void> {
         this.show(line(beatId, index));
         return new Promise((resolve) => {
             this.onAdvance = () => {
@@ -98,9 +55,22 @@ export default class Dialogue {
         });
     }
 
+    // "sky": the usual place, above the scene. "centre": the middle of the
+    // stage, for narration over black (the opening). Change it while the box is hidden
+    setPlace(place: "sky" | "centre"): void {
+        this.box.classList.toggle("centre", place === "centre");
+    }
+
+    // a click, Space or Enter: first finish the typing, the next one moves on
+    advance(): void {
+        this.onAdvance?.();
+    }
+
     private show(l: Line): void {
-        this.stopTimers();
+        this.stopTyping();
         this.onAdvance = null;
+        this.speakerId = l.speaker;
+        this.nextEl.classList.remove("on");
         const name = speakerName(l.speaker);
         this.nameEl.textContent = name;
         this.nameEl.classList.toggle("on", name !== "");
@@ -111,12 +81,12 @@ export default class Dialogue {
 
         const letters = [...this.segmenter.segment(l.sy)].map((s) => s.segment);
         let i = 0;
-        // the English subtitle fades in once the Sylheti line is complete
+        // the English subtitle and the "go on" mark come once the Sylheti line is complete
         this.finishTyping = () => {
-            if (this.typing !== null) clearInterval(this.typing);
-            this.typing = null;
+            this.stopTyping();
             this.lineEl.textContent = l.sy;
             this.subEl.classList.add("on");
+            this.nextEl.classList.add("on");
         };
         this.typing = window.setInterval(() => {
             this.lineEl.textContent += letters[i++];
@@ -125,14 +95,14 @@ export default class Dialogue {
     }
 
     private hide(): void {
-        this.stopTimers();
+        this.stopTyping();
+        this.speakerId = null;
+        this.nextEl.classList.remove("on");
         this.box.classList.remove("on");
     }
 
-    private stopTimers(): void {
+    private stopTyping(): void {
         if (this.typing !== null) clearInterval(this.typing);
-        if (this.timer !== null) clearTimeout(this.timer);
         this.typing = null;
-        this.timer = null;
     }
 }

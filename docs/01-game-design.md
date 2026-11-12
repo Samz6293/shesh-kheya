@@ -49,21 +49,21 @@ Cutscenes (pre-rendered video) for everything the player watches; live play for 
 Each activity is its own file in `src/activities/`. None can be failed. Numbers below are starting values; all tuning lives in `src/config.ts`.
 
 ### A1 — ভাইয়ের নড়াচড়া (Baby kick)
-- **Trigger:** after `a1.babyKick.prompt`.
-- **Control:** hold the mouse button on Amma's belly (a soft glowing hotspot).
-- **Rule:** after 2–3 s of holding, one soft "dhuk": small screen shake, soft thud sound, one light ripple ring spreading from the belly. Releasing early resets the timer quietly, no penalty.
+- **Lead-in:** a first soft kick (thud, a small ripple of light on the belly); Amma gasps, smiles and lays her hand there; then `a1.babyKick.prompt`.
+- **Control:** an ink hand pulses over Amma's belly; **click it once** (D20; was a 2–3 s hold).
+- **Then (clip):** Mitu steps over, kneels and puts her hand on the belly; a beat; the kick: soft thud, a ring of light spreading from the belly, Mitu startles.
 - **Then:** `a1.babyKick.after`.
 - **Echo:** Chapter 3, same action, the movement is weaker.
 
 ### A2 — পান বানানো (Making paan for Dadi)
-- **Trigger:** after `a2.paan.prompt`.
-- **Control:** drag the betel leaf onto the plate, then drag chun (lime) and supari onto the leaf in any order, then click the leaf to fold it.
+- **Lead-in (clip):** Dadi chuckles, pulls her paan box round and pats it; Mitu sits by her. Then `a2.paan.prompt` and the close-up: Dadi across the plate, the box open in front.
+- **Control:** drag the betel leaf onto the plate first, then chun (lime) and supari onto the leaf in any order, then click the leaf to fold it. A picture checklist down the right shows what is done and what is next.
 - **Rule:** 15–20 s, no wrong moves. A piece dropped in the wrong place floats back to its spot.
-- **During:** `a2.paan.during` plays as ambient lines (does not block input) while Dadi turns her bangle; the bangle catches the light.
+- **During:** once the leaf is on the plate the pieces pause; Dadi turns her bangle (its glint goes round) and says both `a2.paan.during` lines (D20).
 - **Echo:** Chapter 3, Mitu's paan in Dadi's hand. Ending 2, the floating bangle and paan box.
 
 ### A3 — হারিকেনে তেল ভরা (Filling the lantern)
-- **Trigger:** after `a3.lantern.prompt`.
+- **Lead-in (clips):** after `a3.lantern.prompt[0]` Dadi reaches behind her for the lantern and holds it out; `[1]` while she holds it; Mitu takes it and sets it down by the bottle; the close-up.
 - **Control:** hold the mouse on the kerosene bottle to pour.
 - **Rule:** oil pours while held and the meter rises. The bottle holds a limited amount, so the meter can never reach 100. Releasing stops pouring. When the bottle is empty, it stops by itself.
 - **Saves:** `lampOil` (0–100) = meter value when the activity ends.

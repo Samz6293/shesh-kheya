@@ -80,6 +80,8 @@ shesh-kheya/
             Sound.ts              ambience layers, one-shots, fades
             save.ts               load/save/migrate
             Progress.ts           flags + checkpoint; saves on every change
+            Pointer.ts            the mouse in stage pixels (drag, hold, click)
+            OilMeter.ts           the lantern oil bar in the corner
             Card.ts               title cards (game title, chapter cards)
             Boat.ts               rowing controller (used in most scenes)
             activities/           BabyKick, PaanMaking, LanternOil, MemoryPickup, NetPull, FishLift, PushBoat
@@ -112,7 +114,9 @@ These are what made the prototype seamless. Every scene must follow them.
 | S5 Kalam | `intro`, `helped`, `declined` | choice, rowing to Kalam, hold-to-push |
 | S6 Return | `return` (dock, pot, lightning, rain) | lantern glow and memories in the boat via the track |
 
-Activities that need the hands close up (paan, lantern, net) use their own **close-up plate**, painted in the same style and faded in over the scene.
+Activities that need the hands close up (paan, lantern, net) use their own **close-up plate**, painted in the same style and faded in over the scene. Close-up plates and the loose pieces on them are **stills** (`stills()` in the scene's renderer entry, `loadStills()` in the game): plain pictures with no reflection.
+
+Figures that stand on a floor instead of floating (S2's veranda) set `FrameSprite.y`: they stand on that line at full size and don't bob. **Glints** (the kupi, Dadi's bangle) are small warm lights that are the same for every player, so they are drawn into clips as well as live frames; their flicker uses periods that divide `SYNC`. A clip with no boat gets a track with scale 0, which means "no lantern".
 
 ## Scene flow
 
@@ -146,6 +150,11 @@ export default async function playKalam(game: Game) {
 - Preloads the current scene's clips (`preload="auto"`) and the next scene's first clip.
 - `play(scene, clip)`: rewinds, plays, fades in on `playing`, fires cues by `currentTime`, and on `ended` sets the game clock to the clip's end time, lets the canvas draw the matching frame, then fades out.
 - Esc skips to the last frame. Hold lines that were skipped still appear afterwards; timed lines are dropped.
+- `overlay`: a function drawn live over every video frame. S2 uses it for its swaying reeds: a scene whose `SceneRender.isFrontLive` is true leaves the foreground out of its clips, so nothing in the clip loops and a clip can start the moment the player is ready, with no sync point.
+
+## Dialogue (D19)
+
+Every line waits for the player: it types out, then a pulsing mark at the box's bottom-right shows it is waiting; a click anywhere on the screen, Space or Enter moves on. Lines are said live between clips, never inside them: `Cue` has no line field, and a clip that needs lines in the middle is split in two (S5: `helped`, then the lines, then `farewell`). The name shows above every line, and `game/SpeakerLight.ts` puts a warm light over the speaker's head in wide shots; a scene says where heads are (`speakerPoint()` in its `layout.ts`; in S5 it follows the boats' bob).
 - Pausing (Esc menu, hidden tab) pauses the video and the sound.
 
 ## Boat controller (`Boat.ts`)

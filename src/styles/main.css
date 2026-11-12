@@ -139,6 +139,30 @@ html, body {
     opacity: 1;
 }
 
+/* the "go on" mark: a small lamp-coloured triangle, bottom-right, pulsing */
+.dialogue-next {
+    position: absolute;
+    right: 1.1cqw;
+    bottom: 0.9cqw;
+    width: 0;
+    height: 0;
+    border-left: 0.45cqw solid transparent;
+    border-right: 0.45cqw solid transparent;
+    border-top: 0.55cqw solid var(--lamp);
+    opacity: 0;
+    transition: opacity var(--fade) ease;
+}
+
+.dialogue-next.on {
+    opacity: 1;
+    animation: next-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes next-pulse {
+    0%, 100% { opacity: 0.35; transform: translateY(0); }
+    50% { opacity: 1; transform: translateY(0.25cqw); }
+}
+
 /* choice: under the dialogue, still in the sky */
 .choice {
     position: absolute;
@@ -220,6 +244,33 @@ html, body {
 .hint-fill {
     width: 0;
     height: 100%;
+    background: var(--lamp);
+}
+
+/* lantern oil meter: a thin bar in the bottom-left corner */
+.oil {
+    position: absolute;
+    left: 2cqw;
+    bottom: 3cqw;
+    width: 0.55cqw;
+    height: 7cqw;
+    display: flex;
+    align-items: flex-end;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 1cqw;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity var(--fade) ease;
+}
+
+.oil.on {
+    opacity: 1;
+}
+
+.oil-fill {
+    width: 100%;
+    height: 0;
     background: var(--lamp);
 }
 
