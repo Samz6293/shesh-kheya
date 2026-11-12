@@ -139,9 +139,11 @@ export default class ClipPlayer {
         this.anchor.scale = f[2];
         this.anchor.sx = f[3];
         this.anchor.roll = f[6] ?? 0;         // tracks rendered before pitch existed have no roll
+        this.anchor.lit = f[7] ?? 1;          // ... and before S3's lantern was lit in a clip
         // scale 0: the clip has no boat, so no lantern
-        if (f[2] > 0) drawLights(target, this.anchor, this.game.progress.flags.lampOil, f[4], 1 - f[5]);
-        a.options.overlay?.(target);
+        const boat = f[2] > 0 ? this.anchor : null;
+        if (boat) drawLights(target, boat, this.game.progress.flags.lampOil, f[4], (1 - f[5]) * this.anchor.lit);
+        a.options.overlay?.(target, boat);
         if (alpha < 1) {
             ctx.globalAlpha = alpha;
             ctx.drawImage(this.scratch.canvas, 0, 0);

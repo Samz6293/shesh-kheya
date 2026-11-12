@@ -46,3 +46,9 @@ Two to four lines per milestone: each new concept and the file it lives in. Ever
 - **`setPointerCapture`.** After a press, the element keeps getting that pointer's moves and release even when the mouse leaves it, so dragging a box corner never gets stuck. File: `src/preview/BoxTool.ts`. Docs: MDN, `Element.setPointerCapture()`.
 - **Keeping a page's place in the URL hash.** `history.replaceState` writes `#s2/arrive/37` without adding history entries; on reload the page reads it back and opens the same frame. File: `src/preview/main.ts`. Docs: MDN, `History.replaceState()`.
 
+## M5 — S3 Rowing and memories
+- **Same random numbers, part of the picture.** Every brush stroke uses up seeded random numbers, so leaving a stroke out would change every stroke after it. A hidden part of the boat is painted onto a spare canvas that is thrown away: the numbers are used up as before, and each visible part keeps its exact pixels. File: `src/render/paintMitu.ts`.
+- **Per-player things over a shared video.** The memories are drawn over each clip frame at the boat's position from the clip's track, the same way as in a live frame, so one video works for every player. Files: `src/game/activities/MemoryPickup.ts` (`drawOver`), `src/game/ClipPlayer.ts` (`overlay`).
+- **Arriving exactly on a sync point.** `untilSync()` says how long until the next sync point; the glide to `leave` is stretched to last exactly that long, so the boat is at rest in the right place when the clip starts. File: `src/scenes/ch1/s3-rowing/play.ts`.
+- **Computed keys.** `{ [name]: true }` uses the value of `name` as the key, so one line sets whichever flag a memory has. File: `src/game/activities/MemoryPickup.ts`. Docs: MDN, "Object initializer".
+

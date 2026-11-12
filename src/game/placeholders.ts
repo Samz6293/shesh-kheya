@@ -26,6 +26,15 @@ export interface Drops {
     gain: number
 }
 
+// a short tune: soft tones one after another, with a slow wobble (vibrato)
+export interface Tune {
+    notes: [number, number][]     // [pitch Hz, seconds]
+    gain: number
+    vibratoHz: number
+    vibratoDepth: number          // Hz the pitch wobbles by
+    attack: number                // seconds for each note to swell in
+}
+
 // a looping bed of noise whose volume or tone slowly drifts
 export interface Bed {
     brown: boolean
@@ -78,6 +87,14 @@ export const ONE_SHOTS = {
     sfx_paan_fold: [
         { duration: 0.3, filter: "bandpass", freq: 2200, sweepTo: 900, q: 0.8, gain: 0.06, attack: 0.04 },
     ],
+    // S3
+    sfx_pickup: [
+        { duration: 0.7, filter: "lowpass", freq: 260, q: 0.8, gain: 0.18, attack: 0.08, brown: true },
+        { duration: 0.5, filter: "bandpass", freq: 1300, sweepTo: 500, q: 1, gain: 0.05, attack: 0.05 },
+    ],
+    sfx_flute_memory: [],         // only a tune (TUNES below)
+    // TODO: a real, respectful recording of a far azan (04-audio.md); no placeholder is made for it
+    sfx_azan_far: [],
 } satisfies Record<string, Burst[]>;
 // New here: `satisfies` checks the object against a type but keeps its exact
 // keys, so `keyof typeof ONE_SHOTS` below is the list of ids, not just "string".
@@ -102,6 +119,16 @@ export const DROPS: Partial<Record<keyof typeof ONE_SHOTS, Drops>> = {
     sfx_oar_2: { count: 4, from: 460, to: 980, delay: 0.05, spread: 0.55, gain: 0.07 },
     sfx_oar_3: { count: 6, from: 580, to: 1250, delay: 0.04, spread: 0.45, gain: 0.07 },
     sfx_ripple: { count: 3, from: 900, to: 1300, delay: 0.05, spread: 0.4, gain: 0.05 },
+    sfx_pickup: { count: 6, from: 420, to: 900, delay: 0.25, spread: 0.6, gain: 0.07 },
+};
+
+// tunes that go with a one-shot. The flute: Abba's tune, a few slow notes
+// (a placeholder until a real flute is recorded; it should feel related to the music)
+export const TUNES: Partial<Record<keyof typeof ONE_SHOTS, Tune>> = {
+    sfx_flute_memory: {
+        notes: [[587, 0.5], [659, 0.35], [784, 0.7], [659, 0.4], [587, 0.45], [523, 0.5], [587, 1.4]],
+        gain: 0.09, vibratoHz: 5.2, vibratoDepth: 6, attack: 0.08,
+    },
 };
 
 export const OAR = {

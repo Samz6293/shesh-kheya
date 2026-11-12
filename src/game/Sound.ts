@@ -2,8 +2,8 @@
 // class for sounds by id, so ambience runs unbroken across every join.
 // For now each id is a Web Audio placeholder (placeholders.ts); real
 // recordings in public/audio/ will replace them by the same ids.
-import { BEDS, DROPS, HELD, OAR, ONE_SHOTS } from "./placeholders";
-import type { BedId, Burst, Drops, HeldId, OneShotId } from "./placeholders";
+import { BEDS, DROPS, HELD, OAR, ONE_SHOTS, TUNES } from "./placeholders";
+import type { BedId, Burst, Drops, HeldId, OneShotId, Tune } from "./placeholders";
 
 const CONFIG = {
     MASTER: 0.9,
@@ -57,6 +57,8 @@ export default class Sound {
         for (const b of bursts) this.burst(b, rate, volume);
         const drops = DROPS[id];
         if (drops) this.drops(drops, rate, volume);
+        const tune = TUNES[id];
+        if (tune) this.tune(tune, volume);
     }
 
     // an oar stroke: never the same variation twice in a row, slightly
@@ -166,6 +168,31 @@ export default class Sound {
         gain.gain.exponentialRampToValueAtTime(0.0001, start + b.duration);
         source.connect(filter).connect(gain).connect(this.master);
         source.start(start);
+    }
+
+    // one soft tone per note, each swelling in and dying away, with a slow wobble
+    private tune(tune: Tune, volume: number): void {
+        if (!this.ctx || !this.master) return;
+        let start = this.ctx.currentTime;
+        for (const [pitch, seconds] of tune.notes) {
+            const tone = this.ctx.createOscillator();
+            tone.frequency.value = pitch;
+            const vibrato = this.ctx.createOscillator();
+            const vibratoGain = this.ctx.createGain();
+            vibrato.frequency.value = tune.vibratoHz;
+            vibratoGain.gain.value = tune.vibratoDepth;
+            vibrato.connect(vibratoGain).connect(tone.frequency);
+            const gain = this.ctx.createGain();
+            gain.gain.setValueAtTime(0.0001, start);
+            gain.gain.exponentialRampToValueAtTime(tune.gain * volume, start + tune.attack);
+            gain.gain.exponentialRampToValueAtTime(0.0001, start + seconds + tune.attack);
+            tone.connect(gain).connect(this.master);
+            for (const osc of [tone, vibrato]) {
+                osc.start(start);
+                osc.stop(start + seconds + tune.attack * 2);
+            }
+            start += seconds;
+        }
     }
 
     private drops(d: Drops, rate: number, volume: number): void {

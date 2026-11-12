@@ -513,3 +513,47 @@ play at full speed. From now on clips are reviewed there before
 they are rendered (CLAUDE.md, start skill, SCENE_STATUS.md).
 ```
 
+---
+
+## M5 — S3 Rowing and memories
+
+**Built**
+- `src/scenes/ch1/s3-rowing/`: the plate (rose dusk, the sky mirrored in the water, afterglow, far trees, hyacinth; the ghat's jetty and reeds as the live foreground), `board` (Mitu walks out along the jetty with the lantern, steps into the stern, sets the lantern on the bow where it lights, walks back and takes up the oar; `board.ts`), `leave` (she rows out of the right edge), cues, and `play.ts`: live rowing, the memories, and the glide to the start of `leave` on a sync point. Outward, left to right (D18).
+- `src/game/activities/MemoryPickup.ts`: three things of Abba's float with a faint light; rowing alongside shows "Press E", E lifts the thing into the boat and sets its flag; the scene then says Mitu's lines (D19), the flute's tune first. The memories are drawn live over clips and live frames, and they stay in the boat (D12) wherever there's a track.
+- `src/shared/memories.ts` (which three, their flags and lines, where each lies in the boat), `src/render/paintMemories.ts` (their pictures, for any scene that shows them), `src/render/rowing.ts` (S5's clip rowing maths for any scene; S5 keeps its own copy until it is re-rendered).
+- Placeholder sounds: `sfx_pickup`, `sfx_flute_memory` (a short tune, `TUNES` in `placeholders.ts`), `sfx_azan_far` (silent until a real recording exists).
+
+**Shared changes**
+- `paintMitu(pose, parts)`: the boat can be painted in parts (empty, lantern only, an oar placed by hand). A hidden part is painted onto a spare canvas, so every part keeps its pixels. S5's sprites repaint pixel-identical (checked), so S5 isn't re-rendered.
+- `oarAt(angle, grip)` in `mituBoat.ts`; `MITU_BOAT.GIRL` (where she stands, used by `paintMitu`).
+- Clip tracks carry `lit` (how brightly the lantern burns); old tracks read as 1. `overlay(ctx, boat)` gets the clip's boat position, so things can ride in it.
+- `drawFigures()` in `compose.ts` draws sprites solid on top of a finished frame; a floor sprite can have its own `scale`.
+- `MituFloorPose.reachB` (S2's figure can put her back hand on something; S2 unchanged). `Hint.hide(id)` hides only that hint.
+- `R.draw()` (the review page) now shows the live foreground (S2's reeds, S3's jetty); the encoded video still leaves it out.
+- `main.ts`: S3 plays between S2 and S5.
+
+**Checked:** `npx tsc --noEmit`; frame review by dh1 (no notes); `npm run render -- s3` (`board` 4.9 MB, `leave` 2.1 MB); `npm run check-joins` (all 19 ok; `s3/board end` 1.15, `s3/leave start` 0.85); `npm run build`. Headless play-through with `?scene=s3`: board, steer, the flute picked up (hint, lift, tune, line with the speaker light, `foundFlute` saved, flute in the boat during `leave`), rowing out, glide, `leave`, then S5. No page errors. Not played by hand.
+
+**Known**
+- The faint light on each floating memory is weak on the pale paper (it uses the "screen" glow); check it in the play-test.
+- Continue into S3 puts the memories back in the water (their flags are cleared as the scene starts), because `board` replays.
+
+**TODOs left:** `placeholders.ts`, a real recording of a far azan (no placeholder is made for it).
+
+**Suggested commit message**
+```
+Add Scene 3: rowing and Abba's memories
+
+Mitu boards at the ghat, lights the lantern on the bow and takes up
+the oar (clip `board`); then the player rows out across the haor.
+Abba's gamchha, flute and tiffin box float there with a faint light;
+rowing alongside and pressing E lifts one into the boat, where it
+stays, and Mitu remembers. Rowing on to the right glides the boat
+to where `leave` starts, and she rows out of the picture.
+
+The memories differ per player, so they are drawn live over clips
+and live frames; clip tracks now say how brightly the lantern burns,
+and the clip overlay knows where the boat is. The boat painter can
+paint parts of the boat without changing any existing sprite.
+```
+

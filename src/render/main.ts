@@ -25,6 +25,11 @@ function current(): SceneRender {
     return scene;
 }
 
+function paintFrame(clip: string, index: number, withFront: boolean): void {
+    if (!plate) throw new Error("Call R.init(scene) first");
+    composeFrame(ctx, plate, current().clipFrame(clip, index / STAGE.FPS), false, withFront);
+}
+
 function png(c: CanvasImageSource): string {
     // safe: every painter returns a canvas
     return (c as HTMLCanvasElement).toDataURL("image/png");
@@ -65,15 +70,16 @@ const api: RenderApi = {
     },
 
     // one frame of a clip on the canvas, without lights (the game draws those
-    // live). The preview calls this alone: no PNG encoding, so scrubbing is quick
+    // live). The preview calls this alone: no PNG encoding, so scrubbing is quick.
+    // It shows the foreground even where the game draws it live (S2's reeds,
+    // S3's jetty), so the review page looks like the game
     draw(clip, index) {
-        if (!plate) throw new Error("Call R.init(scene) first");
-        composeFrame(ctx, plate, current().clipFrame(clip, index / STAGE.FPS), false, !current().isFrontLive);
+        paintFrame(clip, index, true);
     },
 
-    // the same frame as a PNG, for the render script
+    // the frame as the video gets it, as a PNG, for the render script
     frame(clip, index) {
-        api.draw(clip, index);
+        paintFrame(clip, index, !current().isFrontLive);
         return out.toDataURL("image/png");
     },
 
@@ -86,7 +92,7 @@ const api: RenderApi = {
             const st = current().clipFrame(clip, i / STAGE.FPS);
             const round = (v: number) => Math.round(v * 1000) / 1000;
             const b = st.boat ?? { x: 0, y: 0, scale: 0, sx: 1, roll: 0 };
-            track.frames.push([round(b.x), round(b.y), round(b.scale), round(b.sx), round(st.darkness), round(st.fade), round(b.roll)]);
+            track.frames.push([round(b.x), round(b.y), round(b.scale), round(b.sx), round(st.darkness), round(st.fade), round(b.roll), round(b.lit ?? 1)]);
         }
         return track;
     },

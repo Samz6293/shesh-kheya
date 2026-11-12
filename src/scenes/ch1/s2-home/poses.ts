@@ -92,7 +92,7 @@ export function mituSkeleton(p: MituFloorPose): Skeleton {
     };
     const carried: Point = [body.shoulder[0] + MITU.CARRY[0], body.shoulder[1] + MITU.CARRY[1]];
     const handF = p.reach ?? (p.carry ? carried : hang(1));
-    return { ...body, handF, handB: hang(-1) };
+    return { ...body, handF, handB: p.reachB ?? hang(-1) };
 }
 
 export function ammaSkeleton(p: AmmaPose): { shoulder: Point, head: Point, elbow: Point, hand: Point } {
