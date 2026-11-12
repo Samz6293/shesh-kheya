@@ -40,7 +40,9 @@ async function renderAssets(page: Page, scene: string): Promise<void> {
         await writeFile(`${dir}/${name}.png`, dataUrlToBuffer(img));
         await writeFile(`${dir}/${name}_refl.png`, dataUrlToBuffer(refl));
     }
-    console.log(`${scene}: plate + ${sprites.length} sprites`);
+    const stills = await page.evaluate(() => window.R.stills());
+    for (const [name, img] of stills) await writeFile(`${dir}/${name}.png`, dataUrlToBuffer(img));
+    console.log(`${scene}: plate + ${sprites.length} sprites + ${stills.length} stills`);
 }
 
 async function renderClip(page: Page, scene: string, clip: string, duration: number): Promise<void> {

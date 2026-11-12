@@ -1,11 +1,13 @@
 // composeFrame(): draws one whole frame from a plate, sprites and a few numbers.
 // The renderer calls it for every video frame and the game calls it for every
 // live frame, which is why a clip's last frame and the first live frame match
-// (handoff rule 1). Order: plate, reflections, rings, sprites (far to near,
-// each solid against what is behind it), swaying foreground, darkness, light.
+// (handoff rule 1). Order: plate, glints behind the figures (a kupi in the
+// house), reflections, rings, sprites (far to near, each solid against what
+// is behind it), swaying foreground, darkness, glints on the figures (a
+// bangle), light.
 import { depthScale, depthY, bob, STAGE, SYNC } from "./depth";
 import { inkRGBA } from "./ink";
-import { drawFlashAndFade, drawLights, drawMarker } from "./lights";
+import { drawFlashAndFade, drawGlints, drawLightRing, drawLights, drawMarker } from "./lights";
 import type { FrameSprite, FrameState, Front, Plate, Ring } from "../types";
 
 // the night wash, top to bottom of the picture, as "r,g,b" + strength at darkness 1
@@ -41,12 +43,15 @@ const SOLID = {
 };
 
 // withLights = false is for the renderer: clips never contain the lantern glow,
-// the game draws it on top of the video from the clip's track
-export function composeFrame(ctx: CanvasRenderingContext2D, plate: Plate, st: FrameState, withLights = true): void {
+// the game draws it on top of the video from the clip's track.
+// withFront = false leaves the foreground out (a scene whose reeds are drawn live over its clips)
+export function composeFrame(ctx: CanvasRenderingContext2D, plate: Plate, st: FrameState, withLights = true, withFront = true): void {
     ctx.save();
     ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = 1;
     ctx.drawImage(plate.img, 0, 0);
+    // glints are the same for every player, so clips have them too
+    drawGlints(ctx, st.glints, st.t, true);
 
     // far things first, so nearer boats cover them
     st.sprites.sort((a, b) => a.z - b.z);
@@ -59,10 +64,12 @@ export function composeFrame(ctx: CanvasRenderingContext2D, plate: Plate, st: Fr
         clearBehind(ctx, s, plate.backing, st.t);
         drawSprite(ctx, s, s.art.img, st.t);
     }
-    drawFront(ctx, plate.front, st.t);
+    if (withFront) drawFront(ctx, plate.front, st.t);
 
     drawDarkness(ctx, st.darkness);
     ctx.restore();
+    drawGlints(ctx, st.glints, st.t, false);
+    if (st.ring) drawLightRing(ctx, st.ring.x, st.ring.y, st.ring.radius, st.ring.u);
 
     if (withLights) {
         if (st.marker) drawMarker(ctx, st.marker, st.t);
@@ -71,10 +78,20 @@ export function composeFrame(ctx: CanvasRenderingContext2D, plate: Plate, st: Fr
     drawFlashAndFade(ctx, st.flash, st.fade);
 }
 
+// a figure on a floor (s.y set) stands still at full size; anything on the
+// water sits at its depth and bobs
+function spriteScale(s: FrameSprite): number {
+    return s.y === undefined ? depthScale(s.z) : 1;
+}
+
+function spriteY(s: FrameSprite, t: number): number {
+    return s.y ?? depthY(s.z) + bob(t, depthScale(s.z));
+}
+
 function drawSprite(ctx: CanvasRenderingContext2D, s: FrameSprite, img: CanvasImageSource, t: number): void {
-    const scale = depthScale(s.z);
+    const scale = spriteScale(s);
     ctx.save();
-    ctx.translate(s.x, depthY(s.z) + bob(t, scale));
+    ctx.translate(s.x, spriteY(s, t));
     ctx.rotate(s.roll);
     ctx.scale(scale * s.sx, scale);
     ctx.drawImage(img, -s.def.ax, -s.def.ay);
@@ -84,7 +101,14 @@ function drawSprite(ctx: CanvasRenderingContext2D, s: FrameSprite, img: CanvasIm
 // New here: bending a picture without a mesh. Each reed is drawn in thin
 // horizontal rows; a row is shifted sideways by sway × (height above the
 // root)², so the root stays put and the tip moves most, like a real stem.
-function drawFront(ctx: CanvasRenderingContext2D, front: Front, t: number): void {
+export function drawFront(ctx: CanvasRenderingContext2D, front: Front, t: number): void {
+    ctx.save();
+    ctx.globalCompositeOperation = "multiply";
+    drawFrontPieces(ctx, front, t);
+    ctx.restore();
+}
+
+function drawFrontPieces(ctx: CanvasRenderingContext2D, front: Front, t: number): void {
     for (const p of front.pieces) {
         if (p.sway === 0) {
             ctx.drawImage(front.img, p.sx, p.sy, p.w, p.h, p.x, p.y, p.w, p.h);
@@ -92,9 +116,10 @@ function drawFront(ctx: CanvasRenderingContext2D, front: Front, t: number): void
         }
         const wind = (1 - SWAY.FAST_SHARE) * Math.sin((2 * Math.PI * t) / SWAY.SLOW + p.phase)
             + SWAY.FAST_SHARE * Math.sin((2 * Math.PI * t) / SWAY.FAST + 2 * p.phase);
+        const root = p.root ?? p.h;
         for (let y = 0; y < p.h; y += SWAY.SLICE) {
             const rows = Math.min(SWAY.SLICE, p.h - y);
-            const up = 1 - (y + rows / 2) / p.h;            // 1 at the tip, 0 at the root
+            const up = Math.max(0, 1 - (y + rows / 2) / root);     // 1 at the tip, 0 at the root and below
             const dx = p.sway * wind * up * up;
             ctx.drawImage(front.img, p.sx, p.sy + y, p.w, rows, p.x + dx, p.y + y, p.w, rows);
         }
@@ -111,7 +136,7 @@ function drawFront(ctx: CanvasRenderingContext2D, front: Front, t: number): void
 // grain stays continuous because the backing is the plate's own paper.
 // Docs: MDN, globalCompositeOperation
 function clearBehind(ctx: CanvasRenderingContext2D, s: FrameSprite, backing: CanvasImageSource, t: number): void {
-    const scale = depthScale(s.z), y = depthY(s.z) + bob(t, scale), d = s.def;
+    const scale = spriteScale(s), y = spriteY(s, t), d = s.def;
     const op = ctx.globalCompositeOperation;
     ctx.globalCompositeOperation = "destination-out";
     drawSprite(ctx, s, solidMask(s.art.img, d.w, d.h), t);

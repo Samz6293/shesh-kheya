@@ -4,7 +4,7 @@
 import { STAGE, localToScreen } from "./depth";
 import { inkRGBA } from "./ink";
 import { MITU_BOAT } from "./mituBoat";
-import type { BoatAnchor, Marker } from "../types";
+import type { BoatAnchor, Glint, Marker } from "../types";
 
 // light colours, as "r,g,b" so each use can add its own opacity
 const LIGHT = {
@@ -16,6 +16,11 @@ const LIGHT = {
     LANTERN_WATER: "250,170,90",
     MARKER: "255,230,180",
     LIGHTNING: "244,242,255",
+    KUPI: "255,157,77",           // #FF9D4D
+    BANGLE: "255,211,110",        // #FFD36E
+    KICK: "255,214,160",          // the soft ring when the baby moves
+    HOTSPOT: "255,230,180",       // where the player can touch or pick something up
+    SPEAKER: "250,178,92",        // over the head of whoever is talking (lantern orange, painted)
     BLACK: "8,7,10",
 };
 
@@ -33,6 +38,18 @@ const MARKER = {
     PULSE_SPEED: 3,
     RING_PERIOD: 2,               // a slow ink ring keeps spreading from the spot
     RING_INK: 0.5,
+};
+
+// glints are steady: S2's clips start whenever the player is ready (no sync
+// point), so anything that flickered would jump at a join. [period s, amount]
+// waves can be added for a scene that waits for sync points
+const GLINT: Record<Glint["light"], { strength: number, waves: [number, number][] }> = {
+    kupi: { strength: 0.8, waves: [] },
+    bangle: { strength: 0.9, waves: [] },
+};
+
+const GLOW = {
+    PULSE_SPEED: 3,               // radians per second
 };
 
 function lampSize(oil: number): number {
@@ -125,4 +142,72 @@ export function drawFlashAndFade(ctx: CanvasRenderingContext2D, flash: number, f
         ctx.fillStyle = `rgba(${LIGHT.BLACK},${fade})`;
         ctx.fillRect(0, 0, STAGE.W, STAGE.H);
     }
+}
+
+// the kupi in a window, the bangle on Dadi's wrist: a warm point of light.
+// isBehind picks which glints to draw: those behind the figures, or those on them
+export function drawGlints(ctx: CanvasRenderingContext2D, glints: Glint[], t: number, isBehind: boolean): void {
+    if (glints.length === 0) return;
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    for (const g of glints) {
+        if (g.isBehind !== isBehind) continue;
+        const recipe = GLINT[g.light];
+        let a = recipe.strength;
+        for (const [period, amount] of recipe.waves) a += amount * Math.sin((2 * Math.PI * t) / period + g.phase);
+        const gr = ctx.createRadialGradient(g.x, g.y, 0, g.x, g.y, g.r);
+        gr.addColorStop(0, `rgba(${LIGHT[g.light === "kupi" ? "KUPI" : "BANGLE"]},${Math.max(0, a)})`);
+        gr.addColorStop(1, `rgba(${LIGHT[g.light === "kupi" ? "KUPI" : "BANGLE"]},0)`);
+        ctx.fillStyle = gr;
+        ctx.beginPath();
+        ctx.arc(g.x, g.y, g.r, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.restore();
+}
+
+// game only: a soft pulsing light on something the player can touch or pick up.
+// strength 0..1; it grows while the player holds (baby kick)
+export function drawGlow(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, strength: number, t: number): void {
+    if (strength <= 0) return;
+    const pulse = 0.75 + 0.25 * Math.sin(t * GLOW.PULSE_SPEED);
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    const gr = ctx.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, `rgba(${LIGHT.HOTSPOT},${0.5 * strength * pulse})`);
+    gr.addColorStop(1, `rgba(${LIGHT.HOTSPOT},0)`);
+    ctx.fillStyle = gr;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+}
+
+// game only: one ring of warm light spreading out (the baby kick). u 0..1 = its life
+export function drawLightRing(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, u: number): void {
+    if (u <= 0 || u >= 1) return;
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    ctx.strokeStyle = `rgba(${LIGHT.KICK},${0.7 * (1 - u)})`;
+    ctx.lineWidth = 6 * (1 - u) + 1;
+    ctx.beginPath();
+    ctx.arc(x, y, radius * Math.pow(u, 0.6), 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+}
+
+// game only: a soft warm light over the head of whoever is talking. alpha 0..1.
+// Painted over the picture (not "screen"): on pale paper a screen glow barely shows
+export function drawSpeakerLight(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, alpha: number): void {
+    if (alpha <= 0.01) return;
+    ctx.save();
+    const gr = ctx.createRadialGradient(x, y, 0, x, y, radius);
+    gr.addColorStop(0, `rgba(${LIGHT.SPEAKER},${0.95 * alpha})`);
+    gr.addColorStop(0.3, `rgba(${LIGHT.SPEAKER},${0.6 * alpha})`);
+    gr.addColorStop(1, `rgba(${LIGHT.SPEAKER},0)`);
+    ctx.fillStyle = gr;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
 }

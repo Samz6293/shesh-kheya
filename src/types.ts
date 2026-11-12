@@ -13,6 +13,8 @@ import type Fade from "./game/Fade";
 import type Debug from "./game/Debug";
 import type Progress from "./game/Progress";
 import type Card from "./game/Card";
+import type Pointer from "./game/Pointer";
+import type OilMeter from "./game/OilMeter";
 
 // a point as [x, y]. A tuple (fixed-length array) instead of an interface,
 // because the brush code does a lot of arithmetic on points
@@ -53,6 +55,18 @@ export interface FrameSprite {
     z: number
     sx: number                    // 1 = facing right, -1 = facing left
     roll: number
+    y?: number                    // set for figures on a floor (S2): stands on this line, no bob, scale 1
+}
+
+// a small warm light that flickers or glints (the kupi, Dadi's bangle).
+// Not player-dependent, so it is drawn into clips and live frames alike
+export interface Glint {
+    x: number
+    y: number
+    r: number                     // px
+    light: "kupi" | "bangle"
+    phase: number                 // radians, so two glints don't pulse together
+    isBehind: boolean             // behind the figures (a lamp in the house), or on one (a bangle)
 }
 
 export interface Ring {
@@ -98,6 +112,7 @@ export interface FrontPiece {
     y: number
     sway: number                  // px the top moves at most; 0 = still
     phase: number                 // radians, so no two reeds move together
+    root?: number                 // rows from the piece's top where it is fixed (a tree's foot); default: its bottom
 }
 
 export interface Front {
@@ -116,6 +131,16 @@ export interface FrameState {
     boat: BoatAnchor | null
     oil: number
     marker: Marker | null
+    glints: Glint[]
+    ring: LightRing | null        // a ring of warm light spreading out (the baby's kick)
+}
+
+// one ring of light; u 0..1 is how far through its life it is
+export interface LightRing {
+    x: number
+    y: number
+    radius: number
+    u: number
 }
 
 // ---------- Mitu's boat ----------
@@ -163,6 +188,81 @@ export interface S5ClipLook extends S5Look {
     kalamNod: number
 }
 
+// ---------- scene 2 ----------
+// a figure drawn from a few joints, measured from the point on the floor under it
+export interface Skeleton {
+    hip: Point
+    kneeF: Point                  // F = the leg nearer the way she faces
+    footF: Point
+    kneeB: Point
+    footB: Point
+    shoulder: Point
+    head: Point
+    handF: Point
+    handB: Point
+}
+
+// Mitu on the veranda. low: 0 standing .. 1 kneeling; sit: .. 1 sitting.
+// walk: 0..1 through a stride (two steps). lean: radians, + is forward
+export interface MituFloorPose {
+    walk: number
+    low: number
+    sit: number
+    lean: number
+    reach: Point | null           // where her front hand goes (from the anchor); null = resting
+    carry: boolean                // holding the lantern at her side
+}
+
+// hand: 0 on her lap .. 1 on her belly; gasp: 0..1 (head lifts, at the first kick)
+export interface AmmaPose {
+    hand: number
+    gasp: number
+}
+
+// chuckle: 0..1 (shoulders up); reach: where her hand goes; lean: radians, + is forward
+export interface DadiPose {
+    chuckle: number
+    reach: Point | null
+    lean: number
+}
+
+// where a prop (paan box, lantern, bottle) is: x and the y of its bottom on screen, z for drawing order
+export interface PropPlace {
+    x: number
+    y: number
+    z: number
+}
+
+// everything that changes in the S2 wide shot
+export interface S2Look {
+    t: number
+    fade: number
+    mituX: number
+    mituY: number                 // the floor under Mitu (the walkway slopes down)
+    box: PropPlace
+    lantern: PropPlace
+    bottle: PropPlace
+    ring: LightRing | null
+}
+
+// a clip also says the exact poses to paint
+export interface S2ClipLook extends S2Look {
+    mitu: MituFloorPose
+    amma: AmmaPose
+    dadi: DadiPose
+}
+
+// a moment between clips: where everyone is and which sprite each shows
+export interface S2State {
+    mituX: number
+    mitu: string                  // sprite names
+    amma: string
+    dadi: string
+    box: PropPlace
+    lantern: PropPlace
+    bottle: PropPlace
+}
+
 // ---------- clips ----------
 export interface ClipDef<Look> {
     duration: number
@@ -179,14 +279,12 @@ export interface Cue {
     t: number
     sfx?: OneShotId
     oar?: boolean               // an oar stroke (the sound varies each time)
-    line?: [BeatId, number]
-    hold?: boolean
-    dur?: number
 }
 
 export interface PlayOptions {
     keepLastFrame?: boolean       // the last frame stays up (clips that end a scene)
     fromBlack?: boolean           // the clip starts black, so no crossfade is needed
+    overlay?(ctx: CanvasRenderingContext2D): void     // drawn live over each video frame (S2's swaying reeds)
 }
 
 // a moment where a clip and live play must look the same
@@ -194,8 +292,9 @@ export interface Join {
     clip: string
     at: "start" | "end"
     mitu: { x: number, z: number }
-    kalamX: number
+    kalamX?: number               // S5 only
     darkness: number
+    state?: string                // S2: the live state (layout.ts STATES) at this join
 }
 
 // ---------- renderer ----------
@@ -231,6 +330,13 @@ export interface SpriteJob {
     paint(): SpriteArt
 }
 
+// a picture that is not a figure on the water: close-up plates and the things
+// on them (S2's paan and lantern). Saved as <name>.png, no reflection
+export interface StillJob {
+    name: string
+    paint(): HTMLCanvasElement
+}
+
 // what a scene's plate painter returns (the renderer saves each part as a file)
 export interface PaintedPlate {
     img: HTMLCanvasElement
@@ -247,6 +353,10 @@ export interface SceneRender {
     spriteNames: string[]
     joins: Join[]
     joinFrame(join: Join, art: Record<string, SpriteArt>, oil: number): FrameState
+    stills?(): StillJob[]
+    // true: the foreground is left out of the clips and drawn live on top of
+    // them, so its sway needs no sync point and a clip can start at any moment
+    isFrontLive?: boolean
 }
 
 export interface JoinResult {
@@ -261,6 +371,7 @@ export interface RenderApi {
     init(scene: string): void
     plate(): { plate: string, backing: string, front: string, pieces: FrontPiece[] }   // PNGs as data URLs
     sprites(): string[][]
+    stills(): string[][]                          // [name, PNG data URL]
     clips(): Record<string, number>
     frame(clip: string, index: number): string
     track(clip: string): Track
@@ -295,6 +406,17 @@ export interface SaveData {
     settings: Settings
 }
 
+// a thing the player drags in a close-up (S2's paan pieces)
+export interface Draggable {
+    name: string
+    home: Point                   // where it rests, and floats back to
+    x: number
+    y: number
+    radius: number                // px round its middle that picks it up
+    isActive: boolean             // can be picked up now
+    returning: { from: Point, start: number } | null
+}
+
 // the live part of a scene: the loop calls these every frame
 export interface LiveScene {
     update(dt: number): void
@@ -321,6 +443,8 @@ export interface Game {
     debug: Debug
     card: Card
     progress: Progress
+    pointer: Pointer
+    oil: OilMeter
 }
 
 export type ScenePlay = (game: Game) => Promise<void>;

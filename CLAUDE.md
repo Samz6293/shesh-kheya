@@ -27,6 +27,7 @@ Read these before writing code, in this order:
 ## Hard rules
 - **No text in code or video.** Every on-screen string comes from `src/content/**.json`. Don't edit Sylheti wording; dh1 and the writer own it.
 - **Handoff rules.** Same `composeFrame()` for clips and live frames; rest poses at every join; clips start and end on sync points; 300 ms crossfades; silent videos with sound from cues.
+- **Dialogue is the same in every scene (D19; S2 is the template).** One box, `game/Dialogue.ts`, and only `hold()`: a line types out, then waits with the pulsing mark; a click anywhere, Space or Enter moves on. Nothing leaves by itself. Lines are said live between clips, never inside a clip (split the clip instead). In wide shots the speaker gets the light over their head (`game/SpeakerLight.ts` + the scene's `speakerPoint()`); close-ups show the name only.
 - **Per-player differences are live.** Never render a flag-dependent detail into a clip; draw it on top, using the clip's track if it moves.
 - **Change `layout.ts`, re-render the scene,** and run `npm run check-joins`.
 - **No raw numbers or colours in game code.** Positions in `layout.ts`, tuning in a `CONFIG` object, colours in `shared/` or CSS variables.

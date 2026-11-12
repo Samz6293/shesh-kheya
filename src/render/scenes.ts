@@ -1,6 +1,11 @@
 // The list of scenes the renderer knows. Each entry gathers what a scene's
 // paint.ts, clips.ts and layout.ts offer, in the shape the renderer page
 // expects, so adding a scene is one more entry here.
+import paintS2Plate from "../scenes/ch1/s2-home/paintPlate";
+import { spriteJobs as s2SpriteJobs } from "../scenes/ch1/s2-home/paint";
+import { stillJobs as s2StillJobs } from "../scenes/ch1/s2-home/paintCloseups";
+import { clipFrame as s2ClipFrame } from "../scenes/ch1/s2-home/clips";
+import { JOINS as S2_JOINS, S2, s2JoinFrame, s2SpriteNames } from "../scenes/ch1/s2-home/layout";
 import paintS5Plate from "../scenes/ch1/s5-kalam/paintPlate";
 import { spriteJobs as s5SpriteJobs } from "../scenes/ch1/s5-kalam/paint";
 import { clipFrame as s5ClipFrame } from "../scenes/ch1/s5-kalam/clips";
@@ -8,6 +13,17 @@ import { JOINS as S5_JOINS, S5, s5JoinFrame, s5SpriteNames } from "../scenes/ch1
 import type { SceneRender } from "../types";
 
 export const SCENES: Record<string, SceneRender> = {
+    [S2.ID]: {
+        paintPlate: paintS2Plate,
+        spriteJobs: s2SpriteJobs,
+        stills: s2StillJobs,
+        clips: S2.CLIP,
+        clipFrame: s2ClipFrame,
+        spriteNames: s2SpriteNames(),
+        joins: S2_JOINS,
+        joinFrame: s2JoinFrame,
+        isFrontLive: true,
+    },
     [S5.ID]: {
         paintPlate: paintS5Plate,
         spriteJobs: s5SpriteJobs,

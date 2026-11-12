@@ -1,21 +1,24 @@
 // Scene 5 (Kalam Majhi), as the player lives it: intro clip, his request,
-// the first choice, then either rowing over and pushing his boat free (live)
-// or apologising, and the clip for that choice. It reads top to bottom like
-// the script because every step is awaited. GAME only.
+// the first choice, then either rowing over and pushing his boat free (live),
+// his thanks and a farewell nod, or apologising and rowing on. Lines are said
+// live between clips and wait for the player (D19), with a light over the
+// speaker. It reads top to bottom like the script because every step is awaited.
+// GAME only.
 import { composeFrame } from "../../../shared/compose";
 import { depthScale } from "../../../shared/depth";
 import { loadPlate, loadSprites } from "../../../shared/assets";
 import { MITU_BOAT } from "../../../shared/mituBoat";
 import Boat from "../../../game/Boat";
+import SpeakerLight from "../../../game/SpeakerLight";
+import { lineCount } from "../../../content/text";
 import PushBoat from "../../../game/activities/PushBoat";
 import { cues } from "./cues";
-import { PUSH_DX, S5, kalamSpriteName, s5Frame, s5SpriteNames } from "./layout";
+import { MITU_AFTER_HELP, PUSH_DX, S5, kalamSpriteName, s5Frame, s5SpriteNames, speakerPoint } from "./layout";
 import type { Game, S5Look } from "../../../types";
 
 const CONFIG = {
     AMBIENCE: { amb_water: 0.6, amb_wind: 0.55 },      // storm coming: more wind
-    DECLINE_READ: 1.8,            // seconds, at least, between her apology and rowing away
-    DECLINE_SHOW: 3.2,            // seconds the apology is up: about 1.5 s typing + time to read
+    REST_SPRITE: "kalam_0",       // Kalam standing still, once his boat is free
 };
 
 export default async function playKalam(game: Game): Promise<void> {
@@ -33,6 +36,8 @@ export default async function playKalam(game: Game): Promise<void> {
         mitu: { x: boat.x, z: boat.z, sx: boat.facing, roll: 0 },
         kalamX: S5.KALAM.x,
     };
+    const speaker = new SpeakerLight();
+    let isKalamPushing = true;    // he stops once his boat is free
     const push = new PushBoat(game, boat, {
         contact: S5.CONTACT,
         target: S5.KALAM,
@@ -49,6 +54,8 @@ export default async function playKalam(game: Game): Promise<void> {
         update(dt) {
             boat.update(dt);
             push.update(dt);
+            const who = game.dialogue.speaker;
+            speaker.update(dt, who ? speakerPoint(who, look) : null);
         },
         draw(ctx) {
             look.t = game.loop.t;
@@ -56,7 +63,8 @@ export default async function playKalam(game: Game): Promise<void> {
             look.mitu.z = boat.z;
             look.mitu.roll = boat.roll;
             look.marker = push.marker;
-            composeFrame(ctx, plate, s5Frame(look, art[boat.spriteName()], art[kalamSpriteName(look.t)]));
+            composeFrame(ctx, plate, s5Frame(look, art[boat.spriteName()], art[isKalamPushing ? kalamSpriteName(look.t) : CONFIG.REST_SPRITE]));
+            speaker.draw(ctx);
         },
     });
     const removeDebug = [
@@ -64,8 +72,10 @@ export default async function playKalam(game: Game): Promise<void> {
         game.debug.add(() => push.debugLine()),
     ];
 
-    // the intro fades in from black by itself, so lift the curtain without waiting
+    // the intro starts on a sync point (while the screen is still black), so the
+    // boats' bob and Kalam's pushing are in step at its end; it fades in by itself
     game.sound.ambience(CONFIG.AMBIENCE);
+    await game.loop.waitSync();
     game.fade.to(false);
     await game.clips.play(S5.ID, "intro", { fromBlack: true });
     await game.dialogue.hold("s5.intro", 0);
@@ -77,14 +87,19 @@ export default async function playKalam(game: Game): Promise<void> {
         game.progress.setFlags({ helpedKalam1: true });
         await push.run();
         await game.loop.waitSync();
-        await game.clips.play(S5.ID, "helped", { keepLastFrame: true });
+        await game.clips.play(S5.ID, "helped");
+        // his boat is free: he rests, Mitu's boat where it drifted to, and they talk
+        isKalamPushing = false;
+        look.kalamX = S5.KALAM_FREE;
+        boat.x = MITU_AFTER_HELP;
+        for (let i = 0; i < lineCount("s5.helped"); i++) await game.dialogue.hold("s5.helped", i);
+        await game.loop.waitSync();
+        await game.clips.play(S5.ID, "farewell", { keepLastFrame: true });
     }
     else {
         game.progress.setFlags({ helpedKalam1: false });
-        // the clip can only start on a sync point (up to 4 s away), so the line
-        // gets a fixed time of its own instead of waiting for the clip with it
-        game.dialogue.timed("s5.declined", 0, CONFIG.DECLINE_SHOW);
-        await game.loop.waitSync(CONFIG.DECLINE_READ);
+        await game.dialogue.hold("s5.declined", 0);
+        await game.loop.waitSync();
         await game.clips.play(S5.ID, "declined", { keepLastFrame: true });
     }
 

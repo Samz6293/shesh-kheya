@@ -3,7 +3,7 @@
 // sprite PNGs) and the clip's frame (decoded from the MP4) with the live
 // lights on top, then measures how different the two pictures are.
 import { STAGE } from "../shared/depth";
-import { composeFrame } from "../shared/compose";
+import { composeFrame, drawFront } from "../shared/compose";
 import { drawLights } from "../shared/lights";
 import { defaultFlags } from "../shared/flags";
 import { loadImage, loadPlate, loadSprites, loadTrack } from "../shared/assets";
@@ -40,7 +40,9 @@ export async function checkJoin(sceneId: string, scene: SceneRender, index: numb
     const clip = context(makeCanvas(STAGE.W, STAGE.H));
     clip.drawImage(clipImage, 0, 0);
     const [x, y, scale, sx, darkness, fade, roll] = track.frames[join.at === "start" ? 0 : track.frames.length - 1];
-    drawLights(clip, { x, y, scale, sx, roll }, oil, darkness, 1 - fade);
+    drawLights(clip, scale > 0 ? { x, y, scale, sx, roll } : null, oil, darkness, 1 - fade);
+    // reeds drawn live over the clip, at the join's time (t = 0), as the game does
+    if (scene.isFrontLive) drawFront(clip, plate.front, 0);
 
     return { clip: join.clip, at: join.at, diff: meanDifference(live, clip) };
 }

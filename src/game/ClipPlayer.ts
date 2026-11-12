@@ -1,6 +1,6 @@
 // Plays cutscenes. A clip is a silent <video>; each frame is drawn onto the
 // game canvas, the live lights (lantern) are drawn on top from the clip's
-// track, and cues fire sounds and lines by the video's time.
+// track, and cues fire sounds by the video's time (lines are never in clips, D19).
 // Drawing the video into the canvas (instead of showing the <video> element)
 // is what lets live things sit on top of a clip, pixel for pixel like live play.
 import { STAGE } from "../shared/depth";
@@ -139,7 +139,9 @@ export default class ClipPlayer {
         this.anchor.scale = f[2];
         this.anchor.sx = f[3];
         this.anchor.roll = f[6] ?? 0;         // tracks rendered before pitch existed have no roll
-        drawLights(target, this.anchor, this.game.progress.flags.lampOil, f[4], 1 - f[5]);
+        // scale 0: the clip has no boat, so no lantern
+        if (f[2] > 0) drawLights(target, this.anchor, this.game.progress.flags.lampOil, f[4], 1 - f[5]);
+        a.options.overlay?.(target);
         if (alpha < 1) {
             ctx.globalAlpha = alpha;
             ctx.drawImage(this.scratch.canvas, 0, 0);
@@ -147,14 +149,13 @@ export default class ClipPlayer {
         }
     }
 
-    // Esc: jump to the last frame. Hold lines still appear; timed lines and sounds are dropped
+    // Esc: jump to the last frame. The sounds of the skipped part are dropped
     skip(): void {
         const a = this.active;
         if (!a || a.endedAt !== null || a.skipped || a.firstFrameAt === null) return;
         // a video that can't be seeked (still loading) would jump back to its start
         if (a.entry.video.seekable.length === 0) return;
         a.skipped = true;
-        this.game.dialogue.hideTimed();
         a.entry.video.currentTime = Math.max(0, a.entry.video.duration - CONFIG.SKIP_TO_END);
     }
 
@@ -178,19 +179,14 @@ export default class ClipPlayer {
     }
 
     private fire(cue: Cue, skipped: boolean): void {
-        if (skipped && !cue.hold) return;
+        if (skipped) return;
         if (cue.sfx) this.game.sound.play(cue.sfx);
         if (cue.oar) this.game.sound.oar();
-        if (!cue.line) return;
-        if (cue.hold) this.game.dialogue.cueHold(cue.line[0], cue.line[1]);
-        else this.game.dialogue.timed(cue.line[0], cue.line[1], cue.dur);
     }
 
     private finish(a: Active): void {
         if (this.active !== a || a.endedAt !== null) return;
         const frames = a.entry.track.frames.length;
-        // hold lines that a skip jumped over still have to appear
-        while (a.nextCue < a.entry.cues.length) this.fire(a.entry.cues[a.nextCue++], true);
         // the clip's last frame is t = duration exactly; put the game clock there,
         // so the live frame drawn under the fading clip is the matching one
         a.mediaTime = (frames - 1) / a.entry.track.fps;

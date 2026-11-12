@@ -14,19 +14,24 @@ import Fade from "./Fade";
 import Card from "./Card";
 import Debug from "./Debug";
 import Progress from "./Progress";
+import Pointer from "./Pointer";
+import OilMeter from "./OilMeter";
 import { SAVE, loadSave } from "./save";
 import playOpening from "../scenes/ch1/s1-opening/play";
+import playHome from "../scenes/ch1/s2-home/play";
 import playKalam from "../scenes/ch1/s5-kalam/play";
 import type { Game, ScenePlay } from "../types";
 
 const CONFIG = {
     END_FADE: 2,                  // seconds for the sound to fade after the last scene
     FONT: '40px "Tiro Bangla"',
+    LANTERN_SCENE: "s2",          // where the oil meter first appears
 };
 
 // scene id -> its play function, in story order
 const SCENES: [string, ScenePlay][] = [
     ["s1", playOpening],
+    ["s2", playHome],
     ["s5", playKalam],
 ];
 
@@ -56,6 +61,8 @@ function buildGame(): Game {
     game.clips = new ClipPlayer(game, el("#clips"));
     game.loop = new Loop(ctx, game.clips, game.debug);
     game.card = new Card(el("#card"), game.loop);
+    game.pointer = new Pointer(el("#stage"), canvas);
+    game.oil = new OilMeter(el("#oil"));
 
     game.debug.add(() => game.loop.debugLine());
     game.debug.add(() => game.clips.debugLine());
@@ -66,11 +73,12 @@ function buildGame(): Game {
 function listenForKeys(game: Game): void {
     document.addEventListener("keydown", (e) => {
         if (e.repeat) return;
-        if (e.code === "Enter") game.dialogue.advance();
+        // Space or Enter moves a waiting line on
+        if (e.code === "Enter" || e.code === "Space") game.dialogue.advance();
         if (e.code === "Escape") game.clips.skip();
         if (e.code === "Backquote") game.debug.toggle();
     });
-    // a click anywhere on the stage moves a line on, except clicks on buttons
+    // and so does a click anywhere on the stage (D19), except on a button (Begin, choices)
     el("#stage").addEventListener("click", (e) => {
         // safe: click targets inside the stage are always elements
         if ((e.target as HTMLElement).closest("button")) return;
@@ -150,12 +158,16 @@ async function boot(): Promise<void> {
         for (const [id, play] of SCENES.slice(from)) {
             // saved as the scene starts, so a reload resumes here
             game.progress.reach(id);
+            // the oil meter is up from the lantern activity in S2 to the end
+            game.oil.set(game.progress.flags.lampOil);
+            game.oil.show(sceneIndex(id) > sceneIndex(CONFIG.LANTERN_SCENE));
             await play(game);
             await game.fade.to(true);
             game.clips.clear();
             game.loop.setScene(null);
         }
         game.progress.reach(SAVE.CHAPTER_END);
+        game.oil.show(false);
         game.sound.fadeOut(CONFIG.END_FADE);
         await game.loop.wait(CONFIG.END_FADE);
     }

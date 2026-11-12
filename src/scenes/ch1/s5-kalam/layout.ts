@@ -3,9 +3,9 @@
 // import. The clips are painted from these numbers and the game places its
 // sprites with them, so changing anything here means re-rendering the scene
 // (`npm run render -- s5`) and running `npm run check-joins`.
-import { bob, depthScale, depthY } from "../../../shared/depth";
+import { bob, depthScale, depthY, localToScreen } from "../../../shared/depth";
 import { JOURNEY, MITU_BOAT, mituSpriteNames } from "../../../shared/mituBoat";
-import type { BoatAnchor, FrameSprite, FrameState, Join, S5Look, SpriteArt, SpriteDef } from "../../../types";
+import type { BoatAnchor, FrameSprite, FrameState, Join, Point, S5Look, SpriteArt, SpriteDef } from "../../../types";
 
 export const S5 = {
     ID: "s5",
@@ -21,7 +21,12 @@ export const S5 = {
     KALAM_FRAMES: 8,                          // sprites the game has for that loop
     KALAM_SPRITE: { w: 640, h: 560, ax: 320, ay: 300 } as SpriteDef,
     KALAM_HULL_HALF: 246,                     // half his hull's length, in sprite pixels
-    CLIP: { intro: 8, helped: 14, declined: 11 },   // clip lengths in seconds (multiples of SYNC or ending the scene)
+    CLIP: { intro: 8, helped: 4, farewell: 4, declined: 11 },   // clip lengths in seconds (multiples of SYNC or ending the scene)
+    KALAM_FREE: 360,                          // where Kalam's freed boat comes to rest, towards home
+    DRIFT_AFTER_HELP: 26,                     // Mitu's boat drifts back this far as his slides free
+    // heads, from each sprite's anchor (facing right), for the light over whoever is speaking
+    HEAD: { mitu: [-139, -126] as Point, kalam: [50, -124] as Point },
+    SPEAKER_ABOVE: 26,
     // Mitu's strokes inside the clips: the renderer paints them, cues.ts plays their sound
     ROW_GAP: 0.65,
     INTRO_ROW: { T0: 0.3, STROKES: 9 },
@@ -51,7 +56,7 @@ const mituSprite: FrameSprite = { def: MITU_BOAT.SPRITE, art: null as unknown as
 const kalamSprite: FrameSprite = { def: S5.KALAM_SPRITE, art: null as unknown as SpriteArt, x: 0, z: S5.KALAM.z, sx: S5.HEADING, roll: 0 };
 const boat: BoatAnchor = { x: 0, y: 0, scale: 1, sx: 1, roll: 0 };
 const frame: FrameState = {
-    t: 0, darkness: 0, flash: 0, fade: 0, rings: [], oil: 0, marker: null,
+    t: 0, darkness: 0, flash: 0, fade: 0, rings: [], oil: 0, marker: null, glints: [], ring: null,
     boat,
     sprites: [mituSprite, kalamSprite],
 };
@@ -88,10 +93,26 @@ export function s5Frame(look: S5Look, mitu: SpriteArt, kalam: SpriteArt): FrameS
 // how far along x the push moves both boats: PUSH_DISTANCE in the direction of travel
 export const PUSH_DX = S5.PUSH_DISTANCE * S5.HEADING;
 
+// where Mitu's boat rests once Kalam's has slid free (it drifts back a little)
+export const MITU_AFTER_HELP = S5.CONTACT.x + PUSH_DX - S5.HEADING * S5.DRIFT_AFTER_HELP;
+
+// where the light over a speaker's head goes, following the bob of the boat; null = not in view
+export function speakerPoint(id: string, look: S5Look): Point | null {
+    const head = id === "mitu" ? S5.HEAD.mitu : id === "kalam" ? S5.HEAD.kalam : null;
+    if (!head) return null;
+    const isMitu = id === "mitu";
+    const x = isMitu ? look.mitu.x : look.kalamX, z = isMitu ? look.mitu.z : S5.KALAM.z;
+    const scale = depthScale(z);
+    const [hx, hy] = localToScreen(head, x, depthY(z) + bob(look.t, scale), scale, S5.HEADING);
+    return [hx, hy - S5.SPEAKER_ABOVE * scale];
+}
+
 // the moments where a clip meets live play; check-joins compares both sides
 export const JOINS: Join[] = [
     { clip: "intro", at: "end", mitu: S5.MITU_START, kalamX: S5.KALAM.x, darkness: 0 },
     { clip: "helped", at: "start", mitu: { x: S5.CONTACT.x + PUSH_DX, z: S5.CONTACT.z }, kalamX: S5.KALAM.x + PUSH_DX, darkness: 1 },
+    { clip: "helped", at: "end", mitu: { x: MITU_AFTER_HELP, z: S5.CONTACT.z }, kalamX: S5.KALAM_FREE, darkness: 1 },
+    { clip: "farewell", at: "start", mitu: { x: MITU_AFTER_HELP, z: S5.CONTACT.z }, kalamX: S5.KALAM_FREE, darkness: 1 },
     { clip: "declined", at: "start", mitu: S5.MITU_START, kalamX: S5.KALAM.x, darkness: 0 },
 ];
 
@@ -100,7 +121,7 @@ export function s5JoinFrame(join: Join, art: Record<string, SpriteArt>, oil: num
     const look: S5Look = {
         t: 0, darkness: join.darkness, flash: 0, fade: 0, rings: [], oil, marker: null,
         mitu: { x: join.mitu.x, z: join.mitu.z, sx: S5.HEADING, roll: 0 },
-        kalamX: join.kalamX,
+        kalamX: join.kalamX ?? S5.KALAM.x,
     };
     return s5Frame(look, art["mitu_rest"], art[kalamSpriteName(0)]);
 }

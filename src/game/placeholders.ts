@@ -64,6 +64,20 @@ export const ONE_SHOTS = {
     sfx_boat_free: [
         { duration: 1.6, filter: "bandpass", freq: 900, q: 0.4, gain: 0.25, attack: 0.3 },
     ],
+    // S2
+    sfx_cow: [
+        { duration: 1.8, filter: "bandpass", freq: 210, sweepTo: 150, q: 6, gain: 0.12, attack: 0.35, brown: true },
+    ],
+    sfx_kick: [
+        { duration: 0.35, filter: "lowpass", freq: 110, q: 1.2, gain: 0.7, attack: 0.02, brown: true },
+    ],
+    sfx_ripple: [],               // only drops: a soft chime
+    sfx_paan_place: [
+        { duration: 0.14, filter: "bandpass", freq: 1400, q: 1, gain: 0.08, attack: 0.01 },
+    ],
+    sfx_paan_fold: [
+        { duration: 0.3, filter: "bandpass", freq: 2200, sweepTo: 900, q: 0.8, gain: 0.06, attack: 0.04 },
+    ],
 } satisfies Record<string, Burst[]>;
 // New here: `satisfies` checks the object against a type but keeps its exact
 // keys, so `keyof typeof ONE_SHOTS` below is the list of ids, not just "string".
@@ -72,11 +86,14 @@ export const ONE_SHOTS = {
 export const BEDS = {
     amb_water: { brown: true, seconds: 6, filter: "lowpass", freq: 520, q: 1, gain: 0.32, drift: "gain", driftHz: 0.23, driftDepth: 0.12 },
     amb_wind: { brown: false, seconds: 5, filter: "bandpass", freq: 500, q: 0.6, gain: 0.035, drift: "freq", driftHz: 0.07, driftDepth: 260 },
+    // high, narrow noise pulsing fast: a field of crickets far away
+    amb_crickets: { brown: false, seconds: 4, filter: "bandpass", freq: 4600, q: 9, gain: 0.05, drift: "gain", driftHz: 13, driftDepth: 0.04 },
 } satisfies Record<string, Bed>;
 
 // a low creak (a trembling tone) while something is held
 export const HELD = {
     sfx_push_strain: { freq: 58, gain: 0.04, trembleHz: 2.2, trembleDepth: 0.03 },
+    sfx_pour: { freq: 190, gain: 0.03, trembleHz: 11, trembleDepth: 0.025 },     // a gurgle
 };
 
 // drops that go with a one-shot (not every sound has them)
@@ -84,6 +101,7 @@ export const DROPS: Partial<Record<keyof typeof ONE_SHOTS, Drops>> = {
     sfx_oar_1: { count: 5, from: 520, to: 1100, delay: 0.05, spread: 0.5, gain: 0.07 },
     sfx_oar_2: { count: 4, from: 460, to: 980, delay: 0.05, spread: 0.55, gain: 0.07 },
     sfx_oar_3: { count: 6, from: 580, to: 1250, delay: 0.04, spread: 0.45, gain: 0.07 },
+    sfx_ripple: { count: 3, from: 900, to: 1300, delay: 0.05, spread: 0.4, gain: 0.05 },
 };
 
 export const OAR = {
