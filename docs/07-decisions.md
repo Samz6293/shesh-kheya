@@ -15,12 +15,12 @@ Each decision has a recommendation. **Open** ones need dh1's answer before the F
 **Choice:** Side view with depth. The boat moves along the water and toward/away from the camera, scaling with distance. Pressing one side repeatedly turns it. Tested in the prototype.
 
 ### D3 — Who paints the art
-**Status:** Open
+**Status:** Decided
 **Options:**
 - **A. Code-painted (recommended to start).** The renderer paints everything, as in the tests. Consistent, re-renderable, fast to change.
 - **B. Hand-painted.** dh1 paints plates and sprite poses (ink on paper scanned, or a digital ink brush) at the same sizes and anchor points. More personal, more work per change.
 - **C. Mix.** Code-painted first; replace key pieces (Mitu, Amma, the house) with hand-painted ones later. The file names and sizes stay the same, so code doesn't change.
-**Answer:**
+**Answer:** A, code-painted (the recommendation).
 
 ### D4 — Sound
 **Status:** Decided
@@ -39,29 +39,29 @@ Each decision has a recommendation. **Open** ones need dh1's answer before the F
 **Choice:** One FABLE session that stops after M1 (pipeline + S5) for dh1 to play and approve, then continues through M10.
 
 ### D8 — Lantern oil during Chapter 1
-**Status:** Open (small)
+**Status:** Decided
 **Question:** Does oil burn down in Chapter 1, or only from Chapter 2?
 **Recommendation:** Fixed in Chapter 1; the meter is visible so the player knows it matters.
-**Answer:**
+**Answer:** Oil stays fixed in Chapter 1 (the recommendation).
 
 ### D9 — Rahim's lines on net hits
 **Status:** Decided (tune later)
 **Choice:** 5 hits to finish; lines on hits 1, 3 and 5.
 
 ### D10 — English title
-**Status:** Open (small)
+**Status:** Decided (for now)
 **Question:** Is the English subtitle of "শেষ খেয়া" **The Last Ferry**?
-**Answer:**
+**Answer:** Yes, "The Last Ferry" for now.
 
 ### D11 — Hosting
-**Status:** Open (small)
+**Status:** Decided
 **Recommendation:** Vercel as a static site. Clips are under 5 MB each, which any static host handles. Check the host's file size limits once all clips exist.
-**Answer:**
+**Answer:** Vercel (the recommendation).
 
 ### D12 — Where the memories go after pickup
-**Status:** Open (small)
+**Status:** Decided
 **Recommendation:** They lie in Mitu's boat next to the fish, drawn live on top of clips using the boat's track. It sets up Ending 1 (the flute in the empty boat).
-**Answer:**
+**Answer:** The memories lie in the boat (the recommendation).
 
 ### D13 — Cutscene-based presentation
 **Status:** Decided

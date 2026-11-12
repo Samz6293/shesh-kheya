@@ -13,6 +13,7 @@ Only dh1 merges into `main`. Never push to `main` yourself; the writer's changes
 ## For code work
 Read these before writing code, in this order:
 
+0. `docs/HANDOFF.md` — where the project stands, known prototype issues, next steps.
 1. `docs/01-game-design.md` — what to build (Chapter 1). The script PDF in `docs/source/` is the final word on story.
 2. `docs/07-decisions.md` — answered decisions are binding; don't build on open ones without asking.
 3. `docs/02-architecture.md` — stack, the two programs (renderer + game), the handoff rules, folders.
