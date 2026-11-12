@@ -5,6 +5,7 @@ Where every scene stands. The `start` skill reads this file first and keeps it u
 **Statuses**
 - `not started`
 - `in progress`: being built.
+- `ready for frame review`: clips built in code, not rendered; waiting for dh1 to check them in `preview.html` and greenlight the render.
 - `ready for play-test`: built, rendered, `check-joins` passes; waiting for dh1 to play it.
 - `approved`: dh1 played it and confirmed; committed and merged.
 

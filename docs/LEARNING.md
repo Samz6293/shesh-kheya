@@ -39,3 +39,10 @@ Two to four lines per milestone: each new concept and the file it lives in. Ever
 - **Figures as joints.** A pose is a few points (hips, knees, feet, shoulders, head, hands); standing, kneeling and sitting are three sets of points, and any pose in between is a blend. Painting from the joints means a clip can move smoothly and a prop always sits in the hand. File: `src/scenes/ch1/s2-home/poses.ts`.
 - **States between clips.** The live scene shows one named state at a time; each clip starts on one and ends on the next, and the join check compares both ends. File: `src/scenes/ch1/s2-home/layout.ts` (`STATES`, `JOINS`).
 - **Drawing live over video.** Anything that moves forever (reeds) can be left out of the clip and drawn over each video frame instead, so a clip can start at any moment. File: `src/game/ClipPlayer.ts` (`overlay`).
+
+## Tooling — frame review page
+- **A Vite plugin with `configureServer`.** A plugin can add a route to the dev server (`server.middlewares.use("/__notes", …)`), so a dev page can read and write files in the repo. `vite build` never runs it. Files: `scripts/notesPlugin.ts`, `vite.config.ts`. Docs: Vite, "Plugin API" → `configureServer`.
+- **`createImageBitmap`.** Copies a canvas, resized, into a picture that draws in about a millisecond, so a clip whose frames take up to half a second to paint still plays at 24 fps once stored. `close()` frees it. File: `src/preview/FrameCache.ts`. Docs: MDN, `createImageBitmap()`.
+- **`setPointerCapture`.** After a press, the element keeps getting that pointer's moves and release even when the mouse leaves it, so dragging a box corner never gets stuck. File: `src/preview/BoxTool.ts`. Docs: MDN, `Element.setPointerCapture()`.
+- **Keeping a page's place in the URL hash.** `history.replaceState` writes `#s2/arrive/37` without adding history entries; on reload the page reads it back and opens the same frame. File: `src/preview/main.ts`. Docs: MDN, `History.replaceState()`.
+
