@@ -259,3 +259,41 @@ Show Mitu's apology in Scene 5 for a fixed time
 It stayed up until the Go home clip started, which could take up to
 seven seconds. It now shows for 3.2 s.
 ```
+
+---
+
+## M2 — Save, transitions, scene order
+
+**Built**
+- **`game/save.ts`:** one versioned JSON object in `localStorage` under `shesh-kheya-save` (`SaveData`: version, chapter, checkpoint, flags, settings). Every `localStorage` call is in `try/catch`. Loading checks every field: a flag with the wrong type gets its default, `lampOil` is clamped to 0–100, and anything unusable (missing, not JSON, not an object, no checkpoint, a newer version) gives `null`, so the game starts fresh. `MIGRATIONS` is where version upgrades go once the shape changes (empty now).
+- **`game/Progress.ts`:** the game's flags and checkpoint. `reach(scene)` saves as each scene starts; `setFlags({...})` merges and saves at once. `game.flags` is gone: scenes read `game.progress.flags` (read-only) and write through `setFlags()`. S5 and `ClipPlayer` updated.
+- **Start screen:** Continue (চালিয়ে যাও) shows only when the save's checkpoint is a scene in `SCENES`. Begin starts a new game and keeps the settings. After the last scene the checkpoint becomes `end`, so Continue disappears.
+- **`?scene=s5`:** Begin starts a new game at that scene with default flags. An unknown id logs a warning and starts at the beginning.
+- **`Fade.to(toBlack, seconds?)`:** optional length for slow story fades (S6).
+- **`game/Card.ts`:** title cards (`game.card.show("chapterTitle")`): text from `screens` in `dialogue.json`, fades in over 1.2 s, stays, fades out. It sits above the black curtain. First used in S1 (M3); not seen on screen yet.
+- **Debug:** the `save` line shows the checkpoint and flags.
+
+**Resuming:** Continue starts the checkpoint scene from its beginning, with the flags as last saved, including any set during that scene before the reload (e.g. `helpedKalam1` after choosing Help). Each scene must accept its own flags being set already: S5 overwrites `helpedKalam1` on the choice; S3 (M5) should put an already-found memory in the boat instead of in the water.
+
+**New text for the writer to check:** `screens.continue` = "চালিয়ে যাও" / "Continue", taken from `01-game-design.md` (Start screen).
+
+**Checked:** `npx tsc --noEmit`, `npm run build`, `npm run check-joins` (all three S5 joins ok, under 1/255). Browser test with Playwright (no page errors): no save → no Continue; Begin writes a fresh save at `s5`; choosing Help saves `helpedKalam1: true`; reload → Continue → `s5` with `helpedKalam1: true`; broken JSON, `null`, `42`, an array, version 99 and an unknown checkpoint → no Continue, Begin works; wrong field types → defaults for those fields; `?scene=nope` → warning, starts at `s5`. Not play-tested by hand.
+
+**TODOs left:** the existing M8 one in `main.ts` (Chapter 2 card after the last scene).
+
+**Files**
+`src/game/save.ts` (new), `src/game/Progress.ts` (new), `src/game/Card.ts` (new), `src/game/main.ts`, `src/game/Fade.ts`, `src/game/ClipPlayer.ts`, `src/types.ts`, `src/scenes/ch1/s5-kalam/play.ts`, `src/content/ch1/dialogue.json`, `src/styles/main.css`, `index.html`, `docs/02-architecture.md`, `docs/LEARNING.md`, `docs/SCENE_STATUS.md`.
+
+**Suggested commit message**
+```
+Add save, Continue and title cards
+
+The game now saves its checkpoint scene and flags to localStorage as
+each scene starts and whenever a flag changes. The start screen
+offers Continue when there is a scene to resume. Broken or old save
+data is checked field by field and falls back to a new game instead
+of crashing.
+
+Also adds ?scene= for testing, an optional length for fades, and a
+title card helper for the opening and chapter cards.
+```

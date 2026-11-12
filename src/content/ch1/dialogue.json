@@ -19,7 +19,8 @@
         "pushHint": { "sy": "Space চেপে ধরে রাখো", "en": "Hold Space" },
         "choiceHelp": { "sy": "সাহায্য করো", "en": "Help" },
         "choiceGoHome": { "sy": "বাড়ি ফিরে যাও", "en": "Go home" },
-        "begin": { "sy": "শুরু করো", "en": "Begin" }
+        "begin": { "sy": "শুরু করো", "en": "Begin" },
+        "continue": { "sy": "চালিয়ে যাও", "en": "Continue" }
     },
     "beats": {
         "s1.opening": [

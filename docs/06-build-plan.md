@@ -33,8 +33,8 @@ Branch for the first build: `feature/chapter-1`. dh1 reviews and commits per mil
 - `save.ts` (checkpoints, flags, settings), Continue on the start screen, `?scene=` jump, fade helpers, title cards.
 
 **Done when:**
-- [ ] Reloading mid-chapter and pressing Continue resumes at the last scene with flags intact.
-- [ ] Broken or missing save data starts a new game without errors.
+- [x] Reloading mid-chapter and pressing Continue resumes at the last scene with flags intact.
+- [x] Broken or missing save data starts a new game without errors.
 
 ## M3 — S1 Opening
 - Black screen, water 3–4 s, narration, game title, chapter card. No video.

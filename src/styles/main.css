@@ -227,6 +227,35 @@ html, body {
     opacity: 1;
 }
 
+/* title cards: centred on black, above the curtain (fade time set by Card.ts) */
+.card {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1cqw;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1200ms ease;
+}
+
+.card.on {
+    opacity: 1;
+}
+
+.card-title {
+    font-size: 4.2cqw;
+}
+
+.card-sub {
+    color: var(--sub);
+    font-family: var(--font-en);
+    font-size: 1.4cqw;
+    font-style: italic;
+}
+
 /* start screen */
 .screen {
     position: absolute;

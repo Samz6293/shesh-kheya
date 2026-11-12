@@ -29,7 +29,7 @@ export default async function playKalam(game: Game): Promise<void> {
     // live state: Mitu's boat where the intro clip leaves it, Kalam stuck
     const boat = new Boat(game, S5.MITU_START.x, S5.MITU_START.z, S5.HEADING);
     const look: S5Look = {
-        t: 0, darkness: 0, flash: 0, fade: 0, rings: boat.rings, oil: game.flags.lampOil, marker: null,
+        t: 0, darkness: 0, flash: 0, fade: 0, rings: boat.rings, oil: game.progress.flags.lampOil, marker: null,
         mitu: { x: boat.x, z: boat.z, sx: boat.facing, roll: 0 },
         kalamX: S5.KALAM.x,
     };
@@ -74,13 +74,13 @@ export default async function playKalam(game: Game): Promise<void> {
     const pick = await game.choice.ask(["choiceHelp", "choiceGoHome"]);
 
     if (pick === "choiceHelp") {
-        game.flags.helpedKalam1 = true;
+        game.progress.setFlags({ helpedKalam1: true });
         await push.run();
         await game.loop.waitSync();
         await game.clips.play(S5.ID, "helped", { keepLastFrame: true });
     }
     else {
-        game.flags.helpedKalam1 = false;
+        game.progress.setFlags({ helpedKalam1: false });
         // the clip can only start on a sync point (up to 4 s away), so the line
         // gets a fixed time of its own instead of waiting for the clip with it
         game.dialogue.timed("s5.declined", 0, CONFIG.DECLINE_SHOW);
