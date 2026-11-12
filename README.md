@@ -1,42 +1,74 @@
-# শেষ খেয়া — Shesh Kheya
+# Shesh Kheya
 
-A short narrative browser game set on a Sylhet haor during the monsoon. You play Mitu, waiting for her father to come home. Painted in ink wash, told mostly through pre-rendered cutscenes, with live play wherever Mitu acts. Sylheti dialogue with English subtitles.
+<p align="center">
+  <img src="docs/readme/cover.jpg" alt="Shesh Kheya cover: a girl rowing a small boat with a lantern across a still haor at dusk, under the Bengali title শেষ খেয়া" width="420">
+</p>
 
-**Status:** planning, with a working prototype of Scene 5.
+<p align="center"><b>শেষ খেয়া · The Last Ferry</b><br>
+<i>A short narrative browser game, painted in ink wash.</i></p>
 
-## What's here
+---
+
+## About
+
+**Shesh Kheya** is a short story game set on a *haor* (a seasonal wetland) in Sylhet, Bangladesh, during the monsoon. You play **Mitu**, a girl whose father has not come home. In one evening that keeps getting darker, she helps her pregnant mother, makes paan for her grandmother, fills the lantern, rows out across the water, helps a fisherman with his net, and decides whether to stop for an old boatman stuck in the water hyacinth. Then the storm arrives.
+
+Chapter 1 (*সন্ধ্যা*, Dusk) lasts about 5–7 minutes. Every activity is small and gentle, and nothing can be failed. Its job is to make you care about this family before the later chapters test that bond. The dialogue is in **Sylheti**, with English subtitles.
+
+This is a **vibe-coded** game, built with AI (Claude Code). It was made as an assignment for my **Algorithms and Complexity** course.
+
+<p align="center">
+  <img src="docs/readme/01-keyart.jpg" alt="Mitu rowing alone across the haor at sunset" width="100%">
+</p>
+
+## Scenes
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/readme/02-home.jpg" alt="The tin house on stilts at dusk"><br><sub><b>Home:</b> Amma and Dadi wait on the veranda.</sub></td>
+    <td width="50%"><img src="docs/readme/03-lantern.jpg" alt="Filling the lantern"><br><sub><b>The lantern:</b> its oil decides how much light Mitu has later.</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/readme/04-memories.jpg" alt="Memories of Abba floating on the water"><br><sub><b>Memories:</b> three of Abba's things, floating on the water.</sub></td>
+    <td><img src="docs/readme/05-rahim.jpg" alt="Rahim Chacha hauling his net"><br><sub><b>Rahim Chacha:</b> pulling the net together.</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/readme/06-kalam.jpg" alt="Kalam Majhi's boat stuck in water hyacinth"><br><sub><b>Kalam Majhi:</b> the first choice: help, or go home.</sub></td>
+    <td><img src="docs/readme/07-storm.jpg" alt="Lightning over the haor as Mitu rows home"><br><sub><b>The storm:</b> the light is almost gone.</sub></td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"><img src="docs/readme/08-pot.jpg" alt="The fish in the water pot" width="60%"><br><sub><b>The pot:</b> waiting for Abba.</sub></td>
+  </tr>
+</table>
+
+## How it's made
+
+- **Ink wash, painted by code.** Every image is painted in the browser on warm paper texture. No illustration software was used. The style takes its technique from Chinese ink wash and its subjects from Bengal: Bengal School wash and Zainul Abedin.
+- **Mostly cutscenes, with live play wherever Mitu acts.** Scenes the player only watches are pre-rendered videos. Activities and choices are drawn live. Both use the same drawing function and join on matching frames, so you can't see where the video stops and play begins.
+- **No game engine.** Vite, TypeScript, Canvas 2D, HTML `<video>`, an HTML overlay for text, and Web Audio. The renderer that makes the clips runs in headless Chrome (Playwright) and encodes with ffmpeg.
+- **All text in one place.** Every line of dialogue lives in `src/content/`, so the Sylheti can be fixed without touching code.
+
+## Status
+
+Planning is done. A working prototype of Scene 5 proves that clips and live play join without a visible seam. Chapter 1 is being built next. Chapters 2–4 are being written.
+
+**Try the prototype:** open `prototypes/s5-cutscene-test/index.html` in a browser.
+
+## What's in the repo
 
 | Path | What it is |
 |---|---|
-| `docs/source/chapter-1-script.pdf` | The Chapter 1 script (source of truth for story) |
-| `docs/01-game-design.md` | Chapter 1 broken into scenes, activities, flags and echoes |
-| `docs/02-architecture.md` | Video + live approach, renderer and game, handoff rules, folders |
-| `docs/03-art-direction.md` | Ink wash: paper, ink, light, composition, assets |
-| `docs/04-audio.md` | Sound ids, cues, rowing sound, sources |
-| `docs/05-code-style.md` | dh1 code style adapted for this game |
-| `docs/06-build-plan.md` | Milestones M0–M10 with "done when" checks + playtest checklist |
-| `docs/07-decisions.md` | Decided and **open** questions |
-| `docs/08-fable-prompt.md` | The prompt for the one-go FABLE build |
-| `docs/art-tests/` | First ink-wash test painting and its code |
-| `prototypes/s5-cutscene-test/` | Playable Scene 5: cutscene → choice → rowing → push → branch cutscene |
-| `src/content/ch1/dialogue.json` | All Chapter 1 text, Sylheti + English, by beat id |
-| `story/bible.md` | Characters, flags and echoes across chapters (kept up to date by Claude) |
-| `CONTRIBUTING.md` | How the two of us work: adding a chapter PDF, changing lines, saving work |
-| `.claude/skills/` | Project skills: `add-chapter` (chapter PDF → dialogue JSON + bible), `save-work` (git for the writer) |
-| `CLAUDE.md` | Rules any AI agent must follow in this repo |
+| `docs/source/chapter-1-script.pdf` | The Chapter 1 script (the final word on story) |
+| `docs/01-game-design.md` – `08-fable-prompt.md` | Design, architecture, art, audio, code style, build plan, decisions, build prompt |
+| `docs/HANDOFF.md` | Where the project stands and what's next |
+| `docs/art/` | Full-size paintings and cover |
+| `prototypes/s5-cutscene-test/` | Playable Scene 5 prototype |
+| `src/content/ch1/dialogue.json` | All Chapter 1 text, Sylheti + English |
+| `story/bible.md` | Characters, flags and echoes across chapters |
+| `CONTRIBUTING.md` | How the team works |
+| `CLAUDE.md` | Rules for AI agents in this repo |
 
 ## Team
-- **dh1** (owner): code, art, video, sound.
-- **Writer**: chapters 2–4 as script PDFs, dialogue. See `CONTRIBUTING.md`.
 
-## How we proceed
-
-1. **Review the Sylheti** in `src/content/ch1/dialogue.json` with the writer. Then run `python prototypes/s5-cutscene-test/render/make_content.py` if you want the prototype to show the fixes.
-2. **Answer the open decisions** in `docs/07-decisions.md`. The big one is D3 (who paints the art).
-3. **Replace the oar sound** (optional before the build): record or find a few oar strokes; see `docs/04-audio.md`.
-4. **Run FABLE** with `docs/08-fable-prompt.md` on branch `feature/chapter-1`. It stops after M1 (S5 rebuilt properly) so you can compare it with the prototype.
-5. **Review and commit milestone by milestone**, using the messages FABLE leaves in `docs/BUILD_LOG.md`.
-6. **Playtest** with the checklist in `docs/06-build-plan.md`, merge to `main`, deploy.
-
-## How to run
-_Filled in after the build (M9). For now: double-click `prototypes/s5-cutscene-test/index.html`._
+- **dh1**: code, art, video, sound.
+- **Writer**: story and dialogue, chapters 2–4.
