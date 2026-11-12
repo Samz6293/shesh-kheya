@@ -20,7 +20,14 @@ A short narrative browser game set on a Sylhet haor during the monsoon. You play
 | `docs/art-tests/` | First ink-wash test painting and its code |
 | `prototypes/s5-cutscene-test/` | Playable Scene 5: cutscene → choice → rowing → push → branch cutscene |
 | `src/content/ch1/dialogue.json` | All Chapter 1 text, Sylheti + English, by beat id |
+| `story/bible.md` | Characters, flags and echoes across chapters (kept up to date by Claude) |
+| `CONTRIBUTING.md` | How the two of us work: adding a chapter PDF, changing lines, saving work |
+| `.claude/skills/` | Project skills: `add-chapter` (chapter PDF → dialogue JSON + bible), `save-work` (git for the writer) |
 | `CLAUDE.md` | Rules any AI agent must follow in this repo |
+
+## Team
+- **dh1** (owner): code, art, video, sound.
+- **Writer**: chapters 2–4 as script PDFs, dialogue. See `CONTRIBUTING.md`.
 
 ## How we proceed
 
