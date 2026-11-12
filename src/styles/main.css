@@ -97,6 +97,16 @@ html, body {
     transform: translate(-50%, 0);
 }
 
+/* narration over black: the middle of the stage instead of the sky */
+.dialogue.centre {
+    top: 50%;
+    transform: translate(-50%, calc(-50% + 0.6cqw));
+}
+
+.dialogue.centre.on {
+    transform: translate(-50%, -50%);
+}
+
 .dialogue-name {
     display: none;
     color: var(--lamp);
@@ -247,6 +257,11 @@ html, body {
 
 .card-title {
     font-size: 4.2cqw;
+}
+
+/* the game title: 125 px at 1080p */
+.card.title .card-title {
+    font-size: 6.5cqw;
 }
 
 .card-sub {

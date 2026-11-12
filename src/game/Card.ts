@@ -22,9 +22,11 @@ export default class Card {
         box.style.transitionDuration = `${CONFIG.FADE}s`;
     }
 
-    // waits on the game clock, so a paused game (M9) pauses the card too
-    async show(id: ScreenId, hold = CONFIG.HOLD): Promise<void> {
+    // waits on the game clock, so a paused game (M9) pauses the card too.
+    // isTitle: the game's own title, set larger than a chapter card
+    async show(id: ScreenId, hold = CONFIG.HOLD, isTitle = false): Promise<void> {
         const text = screen(id);
+        this.box.classList.toggle("title", isTitle);
         this.titleEl.textContent = text.sy;
         this.subEl.textContent = text.en;
         this.box.classList.add("on");

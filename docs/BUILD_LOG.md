@@ -297,3 +297,33 @@ of crashing.
 Also adds ?scene= for testing, an optional length for fades, and a
 title card helper for the opening and chapter cards.
 ```
+
+---
+
+## M3 — S1 Opening
+
+**Built**
+- **`scenes/ch1/s1-opening/play.ts`:** black canvas and water alone (`amb_water` 0.6) for 3.5 s, then the narration `s1.opening` centred on black for 9 s, then the game title card (larger, 125 px at 1080p) and the chapter card, with 1.2 s of black between each. About 25 s in all (target 0:25). No video, plate or layout: the folder has only `play.ts`.
+- **`SCENES`** in `main.ts` is now `s1`, `s5`. Begin plays S1, then S5 fades in.
+- **`Dialogue.setPlace("sky" | "centre")`:** narration over black sits in the middle of the stage; S1 puts it back to `sky` once the line has faded.
+- **`Card.show(id, hold, isTitle)`:** `isTitle` sets the game title larger than a chapter card.
+- The narration is a **timed** line (no click needed), so the opening plays through like a film. If you'd rather the player click on, change `timed` to `hold` in `play.ts`. Tuning: `CONFIG` in `play.ts`.
+
+**Checked against the script** (`docs/source/chapter-1-script.md`, দৃশ্য ১): water alone 3–4 s, the text slowly appears, the narration line matches `dialogue.json`, the text fades, the game name fades in, then the chapter card. The English lines under the cards are ours (D10, subtitles rule).
+
+**Checked:** `npx tsc --noEmit`, `npm run build`, `npm run check-joins` (S5 unchanged, all ok). Browser run with Playwright, no page errors: every typed prefix of the narration ends on a whole letter (32 samples, 0 broken); every overlay change (curtain, narration, cards, subtitle) fades over several frames, no jumps; timeline narration 3.6–12.6 s, title 14.1–18.3 s, chapter card 20.7–24.4 s, S5 fading in at 25.5 s. Looked at screenshots of each part. Not play-tested by hand (sound not heard).
+
+**TODOs left:** none new.
+
+**Files**
+`src/scenes/ch1/s1-opening/play.ts` (new), `src/game/main.ts`, `src/game/Dialogue.ts`, `src/game/Card.ts`, `src/styles/main.css`, `docs/02-architecture.md`, `docs/LEARNING.md`, `docs/SCENE_STATUS.md`.
+
+**Suggested commit message**
+```
+Add Scene 1: the opening
+
+Black screen and water, then grown-up Mitu's narration, the game
+title and the chapter card, each fading in and out. It is all
+overlay text and sound, with no video. Begin now plays Scene 1
+before Scene 5.
+```

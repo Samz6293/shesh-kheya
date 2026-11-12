@@ -15,6 +15,7 @@ import Card from "./Card";
 import Debug from "./Debug";
 import Progress from "./Progress";
 import { SAVE, loadSave } from "./save";
+import playOpening from "../scenes/ch1/s1-opening/play";
 import playKalam from "../scenes/ch1/s5-kalam/play";
 import type { Game, ScenePlay } from "../types";
 
@@ -25,6 +26,7 @@ const CONFIG = {
 
 // scene id -> its play function, in story order
 const SCENES: [string, ScenePlay][] = [
+    ["s1", playOpening],
     ["s5", playKalam],
 ];
 

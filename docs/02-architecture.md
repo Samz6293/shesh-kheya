@@ -69,7 +69,7 @@ shesh-kheya/
                 clips.ts          RENDER: each clip as state(t), duration, start/end poses
                 cues.ts           GAME: sound + text cues per clip, by clip time
                 play.ts           GAME: the scene's flow (async), live parts
-            s1-opening/ … s6-return/
+            s1-opening/ … s6-return/  (s1-opening has only play.ts: no video, no plate)
         game/
             main.ts               boot, start screen, scene order
             loop.ts               requestAnimationFrame loop, clock, waitFor(), waitSync()
