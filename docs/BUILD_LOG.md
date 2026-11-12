@@ -479,3 +479,37 @@ Screenshots show the light over Kalam and over Mitu. Not played by hand.
 
 **Files**
 `src/game/{Dialogue,ClipPlayer,SpeakerLight}.ts`, `src/content/text.ts`, `src/types.ts`, `src/scenes/ch1/s5-kalam/{layout,clips,cues,play}.ts`, `public/video/s5/{helped,farewell}.*`, `CLAUDE.md`, `.claude/skills/start/SKILL.md`, `docs/02-architecture.md`, `docs/07-decisions.md`.
+
+---
+
+## Tooling: frame review page (detour before S3)
+
+dh1: video reviews were taking too many rounds (render, watch, describe in words, guess the frame, render again). VideoHub (a Windows-only review studio for code-made films) was looked at and not used: it only runs on Windows and expects one continuous film with a mixed sound file, while this game has short silent clips joined by live play. This page borrows its one idea that fits: review frames straight from the code and pin notes on them, render once at the end.
+
+**Added**
+- `preview.html` + `src/preview/{main,Notes}.ts` + `src/styles/preview.css`: pick a scene and clip, scrub, step, play at real speed. Scene, clip and frame are kept in the URL, so a code change reloads onto the same frame.
+- `src/preview/BoxTool.ts`: a note points at a box: drag to draw, drag to move, corners to resize, click for a default box, Esc to cancel (dh1's request after the first try: a click point didn't say enough).
+- `src/preview/FrameCache.ts`: playback lagged (dh1) because frames are painted from code, up to 500 ms each in S5 intro. The open clip's frames are now stored at half size in the background ("buffering %"), then played from memory. Paused frames are painted full size.
+- `R.draw(clip, index)` in `src/render/main.ts`: paints a frame without PNG encoding (about 18 ms a frame in S2); `R.frame()` now calls it. The render output is unchanged.
+- `scripts/notesPlugin.ts`: the dev server's `/__notes` route writes `render/notes/<scene>.json` and a picture of each pinned frame. `render/notes/` is git-ignored and not watched, so saving a note doesn't reload the page.
+- `ReviewNote` in `src/types.ts`; "Frame review" in `docs/02-architecture.md`; the `start` skill reads the notes when dh1 asks for changes.
+
+**Checked:** `npx tsc --noEmit`, `npm run build` (`dist/` has only the game). Headless runs: `/preview.html#s2/arrive/40` opens on that frame (plate painted in about 6 s); a box drawn by dragging, resized by its corner, moved by dragging (−50, +30 px as expected), saved as JSON + PNG, shown in the list and on the frame, form closed after saving; S5 intro buffered in about 15 s, then played 49 distinct frames in 2.0 s (24 fps; about 5 fps before); no page errors. Not used by hand.
+
+**Not changed:** the full render is as slow as before (about 0.4 s a frame, mostly PNG encoding and transfer, not drawing). Speeding that up would be its own step if it's wanted.
+
+**Suggested commit message**
+```
+Add a frame review page for clips
+
+Video reviews took many rounds: render a clip, watch it, describe
+the problem in words, render again. preview.html draws any clip
+frame straight from the renderer code, so a clip can be scrubbed
+and checked before it is rendered. A box drawn on a frame holds a
+note; the dev server saves it with a picture of that frame to
+render/notes/, where the agent reads it and marks it fixed.
+Frames are stored at half size once painted, so slow clips still
+play at full speed. From now on clips are reviewed there before
+they are rendered (CLAUDE.md, start skill, SCENE_STATUS.md).
+```
+

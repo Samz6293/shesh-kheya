@@ -2,6 +2,7 @@
 // `window.R`; the Node scripts (scripts/render.ts, scripts/check-joins.ts)
 // open this page in a headless browser and call them to get the plate, the
 // sprites, every clip frame, the tracks, and the join comparison.
+// preview.html imports it too, so the review tool draws with the same code.
 import { STAGE } from "../shared/depth";
 import { composeFrame } from "../shared/compose";
 import { context } from "./layers";
@@ -63,10 +64,16 @@ const api: RenderApi = {
         return current().clips;
     },
 
-    // one frame of a clip, without lights (the game draws those live)
-    frame(clip, index) {
+    // one frame of a clip on the canvas, without lights (the game draws those
+    // live). The preview calls this alone: no PNG encoding, so scrubbing is quick
+    draw(clip, index) {
         if (!plate) throw new Error("Call R.init(scene) first");
         composeFrame(ctx, plate, current().clipFrame(clip, index / STAGE.FPS), false, !current().isFrontLive);
+    },
+
+    // the same frame as a PNG, for the render script
+    frame(clip, index) {
+        api.draw(clip, index);
         return out.toDataURL("image/png");
     },
 

@@ -14,3 +14,6 @@ Thumbs.db
 desktop.ini
 .vscode/
 *.log
+
+# frame-review notes (preview.html): working files between dh1 and the agent
+render/notes/

@@ -43,6 +43,7 @@ No game engine. If a later chapter needs physics or a tilemap, revisit this (see
 shesh-kheya/
     index.html                    the game
     render.html                   the renderer page (dev only, not deployed)
+    preview.html                  frame review: scrub clips from code, pin notes (dev only)
     scripts/
         render.ts                 Playwright + ffmpeg driver: npm run render -- s5
         check-joins.ts            compares game frames with clip frames at every join
@@ -60,6 +61,11 @@ shesh-kheya/
             ink.ts                inkRGBA(): the one ink colour ramp
         render/
             main.ts               render.html entry: exposes paint and frame functions to the script
+        preview/
+            main.ts               preview.html entry: scene/clip pickers, scrub, play, keys
+            Notes.ts              the note list and form, saves through /__notes
+            BoxTool.ts            draw / move / resize the box a note points at
+            FrameCache.ts         the open clip's frames at half size, for smooth playback
             brush.ts              strokes, masses, wet/dry layers, bleed (from prototype engine.js)
             paper.ts              paper texture, grain, vignette
         scenes/ch1/
@@ -210,6 +216,16 @@ npm run render -- all
 - About 0.4 s per frame; a 10 s clip renders in about 2 minutes.
 - Writes the first and last frame of each clip to `render/_check/` so joins can be compared by eye.
 - Deterministic: every stroke is seeded, so re-rendering unchanged code gives identical frames.
+
+## Frame review (`preview.html`)
+
+Check a clip before rendering it. `npm run dev`, then open `/preview.html`.
+
+- Pick a scene and clip; scrub, ← → one frame, Shift + ← → one second, Space plays at real speed.
+- Painting a frame from code takes 1 to 500 ms (S5 intro is the slowest), so the page first stores every frame of the open clip at half size ("buffering %"); after that, playback is smooth. Paused and stepped frames are always painted full size.
+- It draws with `window.R.draw()`, the same code the render script encodes, so the picture is the MP4's picture. Like the MP4, it has no lights, dialogue or sound, and in S2 no reeds (those are drawn live in the game).
+- Drag on the picture to box an area (drag the box to move it, a corner to resize it; a click makes a default box; Esc cancels), then write the note. It is saved to `render/notes/<scene>.json` (`box` in stage pixels), with the frame and box as `render/notes/<scene>/<id>.png` (route `/__notes` from `scripts/notesPlugin.ts`; the folder is git-ignored).
+- **Agents:** read the notes file and each open note's picture, fix the code, then set `isFixed: true` and a one-line `reply` on that note. A code change reloads the page on the same frame (`#scene/clip/frame` in the URL), so dh1 checks the fix there and only then runs `npm run render`.
 
 ## Testing
 

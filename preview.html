@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>frame review</title>
+    <link rel="stylesheet" href="/src/styles/preview.css">
+</head>
+<!-- dev only (npm run dev, then /preview.html): scrub a clip from code, box notes on frames -->
+<body>
+    <main class="viewer">
+        <!-- scene + clip pickers, status -->
+        <div class="bar">
+            <select id="scene"></select>
+            <select id="clip"></select>
+            <span id="status" class="status" data-state="painting">
+                <span class="st-painting">painting the scene…</span>
+                <span class="st-ready">ready</span>
+                <span class="st-saving">saving…</span>
+                <span class="st-saved">note saved</span>
+                <span class="st-error">couldn't save (is npm run dev running?)</span>
+            </span>
+        </div>
+
+        <!-- the frame (R paints on the hidden #out, the page shows #view),
+             the boxes of notes on this frame, and the box being placed -->
+        <canvas id="out" hidden></canvas>
+        <div id="stage" class="stage">
+            <canvas id="view"></canvas>
+            <div id="marks"></div>
+            <div id="box" class="box" hidden>
+                <div class="grip nw" data-grip="nw"></div>
+                <div class="grip ne" data-grip="ne"></div>
+                <div class="grip sw" data-grip="sw"></div>
+                <div class="grip se" data-grip="se"></div>
+            </div>
+        </div>
+
+        <!-- play, scrub, where we are -->
+        <div class="controls">
+            <button id="play" class="play" data-playing="false"></button>
+            <input id="scrub" type="range" min="0" value="0">
+            <span id="buffer" class="buffer">buffering <span id="buffered">0</span>%</span>
+            <span class="time">frame <span id="frame">0</span> / <span id="last">0</span> · <span id="sec">0.00</span> s</span>
+        </div>
+        <p class="keys">← → one frame · Shift + ← → one second · Space play/pause · drag on the picture to box a note (drag the box to move it, a corner to resize, Esc to cancel)</p>
+    </main>
+
+    <aside class="side">
+        <!-- the note being written -->
+        <form id="form" class="form" hidden>
+            <textarea id="text" rows="4" placeholder="What is wrong in this box?"></textarea>
+            <div class="form-buttons">
+                <button type="submit">Save note</button>
+                <button id="cancel" type="button">Cancel</button>
+            </div>
+        </form>
+
+        <h2>Notes</h2>
+        <p id="empty" class="empty">No notes for this scene yet.</p>
+        <ol id="list" class="list"></ol>
+    </aside>
+
+    <script type="module" src="/src/preview/main.ts"></script>
+</body>
+</html>

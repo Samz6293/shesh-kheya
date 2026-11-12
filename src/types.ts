@@ -373,10 +373,31 @@ export interface RenderApi {
     sprites(): string[][]
     stills(): string[][]                          // [name, PNG data URL]
     clips(): Record<string, number>
+    draw(clip: string, index: number): void       // paints the frame on the page's canvas only (the preview)
     frame(clip: string, index: number): string
     track(clip: string): Track
     checkJoin(index: number, clipFrame: string): Promise<JoinResult>
     joins(): Join[]
+}
+
+// ---------- frame review (preview.html, dev only) ----------
+// the area a note points at, in stage pixels
+export interface NoteBox {
+    x: number
+    y: number
+    w: number
+    h: number
+}
+
+// one note dh1 leaves on a clip frame; kept in render/notes/<scene>.json
+export interface ReviewNote {
+    id: string
+    clip: string
+    frame: number                 // index at STAGE.FPS
+    box: NoteBox
+    text: string
+    isFixed: boolean              // set by the agent after fixing it
+    reply?: string                // the agent's one-line answer
 }
 
 // ---------- game ----------
