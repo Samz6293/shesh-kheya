@@ -75,6 +75,12 @@ export default class Dialogue {
         this.hide();
     }
 
+    // "sky": the usual place, above the scene. "centre": the middle of the
+    // stage, for narration over black (the opening). Change it while the box is hidden
+    setPlace(place: "sky" | "centre"): void {
+        this.box.classList.toggle("centre", place === "centre");
+    }
+
     // click or Enter: first finish the typing, the next one moves on
     advance(): void {
         this.onAdvance?.();
