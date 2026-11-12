@@ -60,10 +60,7 @@ export function composeFrame(ctx: CanvasRenderingContext2D, plate: Plate, st: Fr
     ctx.globalCompositeOperation = "multiply";
     for (const s of st.sprites) drawSprite(ctx, s, s.art.refl, st.t);
     drawRings(ctx, st.rings, st.t);
-    for (const s of st.sprites) {
-        clearBehind(ctx, s, plate.backing, st.t);
-        drawSprite(ctx, s, s.art.img, st.t);
-    }
+    drawSolid(ctx, st.sprites, plate.backing, st.t);
     if (withFront) drawFront(ctx, plate.front, st.t);
 
     drawDarkness(ctx, st.darkness);
@@ -73,15 +70,32 @@ export function composeFrame(ctx: CanvasRenderingContext2D, plate: Plate, st: Fr
 
     if (withLights) {
         if (st.marker) drawMarker(ctx, st.marker, st.t);
-        drawLights(ctx, st.boat, st.oil, st.darkness, 1);
+        drawLights(ctx, st.boat, st.oil, st.darkness, st.boat?.lit ?? 1);
     }
     drawFlashAndFade(ctx, st.flash, st.fade);
 }
 
-// a figure on a floor (s.y set) stands still at full size; anything on the
-// water sits at its depth and bobs
+// sprites drawn on top of a finished frame (S3's memories, over a clip or a
+// live frame): reflections first, then each one solid, exactly as in a frame
+export function drawFigures(ctx: CanvasRenderingContext2D, sprites: FrameSprite[], backing: CanvasImageSource, t: number): void {
+    ctx.save();
+    ctx.globalCompositeOperation = "multiply";
+    for (const s of sprites) drawSprite(ctx, s, s.art.refl, t);
+    drawSolid(ctx, sprites, backing, t);
+    ctx.restore();
+}
+
+function drawSolid(ctx: CanvasRenderingContext2D, sprites: FrameSprite[], backing: CanvasImageSource, t: number): void {
+    for (const s of sprites) {
+        clearBehind(ctx, s, backing, t);
+        drawSprite(ctx, s, s.art.img, t);
+    }
+}
+
+// a figure on a floor (s.y set) stands still, at full size unless it says
+// otherwise; anything on the water sits at its depth and bobs
 function spriteScale(s: FrameSprite): number {
-    return s.y === undefined ? depthScale(s.z) : 1;
+    return s.y === undefined ? depthScale(s.z) : s.scale ?? 1;
 }
 
 function spriteY(s: FrameSprite, t: number): number {

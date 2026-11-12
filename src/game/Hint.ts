@@ -33,7 +33,9 @@ export default class Hint {
         this.fillEl.style.width = `${Math.min(100, p * 100)}%`;
     }
 
-    hide(): void {
+    // id: hide only if that hint is the one showing (a timed hint must not hide a newer one)
+    hide(id?: ScreenId): void {
+        if (id && this.current !== id) return;
         this.current = null;
         this.box.classList.remove("on");
     }

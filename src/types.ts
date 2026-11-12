@@ -56,6 +56,7 @@ export interface FrameSprite {
     sx: number                    // 1 = facing right, -1 = facing left
     roll: number
     y?: number                    // set for figures on a floor (S2): stands on this line, no bob, scale 1
+    scale?: number                // with y: draw at this size instead of 1 (a memory lying in the boat)
 }
 
 // a small warm light that flickers or glints (the kupi, Dadi's bangle).
@@ -84,6 +85,7 @@ export interface BoatAnchor {
     scale: number
     sx: number
     roll: number                  // the boat's pitch, so the lantern rides with it
+    lit?: number                  // 0..1, how brightly the lantern burns; 1 if left out (S3 lights it)
 }
 
 export interface Marker {
@@ -168,6 +170,15 @@ export interface BoatLook {
     roll: number
 }
 
+// which parts of Mitu's boat to paint (S3 needs it empty while she boards).
+// oar: null = the oar in her hands for the pose; a shape = an oar placed by hand
+export interface BoatParts {
+    hull: boolean
+    lantern: boolean
+    girl: boolean
+    oar: OarShape | null
+}
+
 // ---------- scene 5 ----------
 export interface S5Look {
     t: number
@@ -186,6 +197,35 @@ export interface S5ClipLook extends S5Look {
     pose: MituPose
     kalamPhase: number
     kalamNod: number
+}
+
+// ---------- scene 3 ----------
+// the three things of Abba's floating in S3 (D12: once found, they lie in the boat)
+export type MemoryId = "gamchha" | "flute" | "tiffin";
+
+export interface S3Look {
+    t: number
+    fade: number
+    mitu: BoatLook
+    lit: number                   // the lantern: 0 unlit (being carried), 1 burning
+    rings: Ring[]
+}
+
+// Mitu as a figure on her feet (S3's boarding): the S2 figure, on the jetty or in the boat
+export interface S3Girl {
+    pose: MituFloorPose
+    x: number
+    y: number                     // her feet on screen
+    sx: number
+    isInBoat: boolean             // in front of the hull (in the boat) or behind it (on the jetty)
+}
+
+// what a clip adds to a look: the exact poses to paint
+export interface S3ClipLook extends S3Look {
+    pose: MituPose                // the rowing pose, once she holds the oar
+    parts: BoatParts              // which parts of the boat are painted
+    girl: S3Girl | null           // Mitu on her feet, while she isn't at the oar
+    lantern: Point | null         // the lantern on its own (carried or just set down): its foot on screen
 }
 
 // ---------- scene 2 ----------
@@ -211,6 +251,7 @@ export interface MituFloorPose {
     lean: number
     reach: Point | null           // where her front hand goes (from the anchor); null = resting
     carry: boolean                // holding the lantern at her side
+    reachB?: Point | null         // where her back hand goes (S3: both hands on the oar); left out = hanging
 }
 
 // hand: 0 on her lap .. 1 on her belly; gasp: 0..1 (head lifts, at the first kick)
@@ -269,7 +310,7 @@ export interface ClipDef<Look> {
     state(t: number): Look
 }
 
-// one entry per video frame: [x, y, scale, sx, darkness, fade, roll]
+// one entry per video frame: [x, y, scale, sx, darkness, fade, roll, lit]
 export interface Track {
     fps: number
     frames: number[][]
@@ -284,7 +325,9 @@ export interface Cue {
 export interface PlayOptions {
     keepLastFrame?: boolean       // the last frame stays up (clips that end a scene)
     fromBlack?: boolean           // the clip starts black, so no crossfade is needed
-    overlay?(ctx: CanvasRenderingContext2D): void     // drawn live over each video frame (S2's swaying reeds)
+    // drawn live over each video frame (swaying reeds, S3's memories). boat: where
+    // the clip's boat is on this frame (null = no boat), for things that ride in it
+    overlay?(ctx: CanvasRenderingContext2D, boat: BoatAnchor | null): void
 }
 
 // a moment where a clip and live play must look the same
@@ -373,7 +416,7 @@ export interface RenderApi {
     sprites(): string[][]
     stills(): string[][]                          // [name, PNG data URL]
     clips(): Record<string, number>
-    draw(clip: string, index: number): void       // paints the frame on the page's canvas only (the preview)
+    draw(clip: string, index: number): void       // paints the frame on the page's canvas only, foreground included (the preview)
     frame(clip: string, index: number): string
     track(clip: string): Track
     checkJoin(index: number, clipFrame: string): Promise<JoinResult>

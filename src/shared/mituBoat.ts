@@ -19,6 +19,7 @@ export const MITU_BOAT = {
     // the stroke positions the game has a sprite for (clips move smoothly)
     STROKE_FRAMES: [0, 0.33, 0.66, 1],
     REST: { side: "near", p: 0.5 } as MituPose,
+    GIRL: [-140, -16] as Point,               // where Mitu stands at the stern: her feet, from the anchor
 };
 
 // How a stroke looks on the water, the same in clips and live play
@@ -66,13 +67,21 @@ export function mituSpriteNames(): string[] {
 // where every part of the oar is for a pose, measured from the sprite's anchor
 export function oarGeometry(pose: MituPose): OarShape {
     const a = OAR.ANGLE_CATCH - OAR.ANGLE_SWEEP * pose.p;
-    const dir: Point = [Math.sin(a), Math.cos(a)];
     const hand: Point = [OAR.HAND[0] + OAR.HAND_TRAVEL * (0.5 - pose.p), OAR.HAND[1]];
+    return oarAt(a, hand);
+}
+
+// the oar held at angle a (radians from pointing straight down, + towards the
+// bow) with the grip at `hand`. oarGeometry() uses it for the stroke poses;
+// S3 uses it for the oar lying in the boat and being picked up.
+// entry: where it crosses the waterline (y = 0), or its tip if it doesn't reach the water
+export function oarAt(a: number, hand: Point): OarShape {
+    const dir: Point = [Math.sin(a), Math.cos(a)];
     const top: Point = [hand[0] - dir[0] * OAR.GRIP_TO_TOP, hand[1] - dir[1] * OAR.GRIP_TO_TOP];
     const tip: Point = [hand[0] + dir[0] * OAR.GRIP_TO_TIP, hand[1] + dir[1] * OAR.GRIP_TO_TIP];
     // where the oar crosses the waterline (y = 0)
     const k = (0 - top[1]) / (tip[1] - top[1]);
-    const entry: Point = [top[0] + (tip[0] - top[0]) * k, 0];
+    const entry: Point = tip[1] > 0 ? [top[0] + (tip[0] - top[0]) * k, 0] : tip;
     const lower: Point = [hand[0] + dir[0] * OAR.GRIP_TO_LOWER, hand[1] + dir[1] * OAR.GRIP_TO_LOWER];
     return { a, hand, lower, top, tip, entry };
 }

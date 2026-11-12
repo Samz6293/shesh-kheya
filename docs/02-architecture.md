@@ -223,7 +223,7 @@ Check a clip before rendering it. `npm run dev`, then open `/preview.html`.
 
 - Pick a scene and clip; scrub, ← → one frame, Shift + ← → one second, Space plays at real speed.
 - Painting a frame from code takes 1 to 500 ms (S5 intro is the slowest), so the page first stores every frame of the open clip at half size ("buffering %"); after that, playback is smooth. Paused and stepped frames are always painted full size.
-- It draws with `window.R.draw()`, the same code the render script encodes, so the picture is the MP4's picture. Like the MP4, it has no lights, dialogue or sound, and in S2 no reeds (those are drawn live in the game).
+- It draws with `window.R.draw()`, the same code the render script encodes, so the picture is the MP4's picture. Like the MP4, it has no lights, dialogue or sound. It does show the foreground that the game draws live over some clips (S2's reeds, S3's jetty and reeds), but not other live things (S3's memories).
 - Drag on the picture to box an area (drag the box to move it, a corner to resize it; a click makes a default box; Esc cancels), then write the note. It is saved to `render/notes/<scene>.json` (`box` in stage pixels), with the frame and box as `render/notes/<scene>/<id>.png` (route `/__notes` from `scripts/notesPlugin.ts`; the folder is git-ignored).
 - **Agents:** read the notes file and each open note's picture, fix the code, then set `isFixed: true` and a one-line `reply` on that note. A code change reloads the page on the same frame (`#scene/clip/frame` in the URL), so dh1 checks the fix there and only then runs `npm run render`.
 

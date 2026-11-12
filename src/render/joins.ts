@@ -39,8 +39,8 @@ export async function checkJoin(sceneId: string, scene: SceneRender, index: numb
     // the clip's side: video frame + lights from the track, as ClipPlayer draws it
     const clip = context(makeCanvas(STAGE.W, STAGE.H));
     clip.drawImage(clipImage, 0, 0);
-    const [x, y, scale, sx, darkness, fade, roll] = track.frames[join.at === "start" ? 0 : track.frames.length - 1];
-    drawLights(clip, scale > 0 ? { x, y, scale, sx, roll } : null, oil, darkness, 1 - fade);
+    const [x, y, scale, sx, darkness, fade, roll, lit = 1] = track.frames[join.at === "start" ? 0 : track.frames.length - 1];
+    drawLights(clip, scale > 0 ? { x, y, scale, sx, roll } : null, oil, darkness, (1 - fade) * lit);
     // reeds drawn live over the clip, at the join's time (t = 0), as the game does
     if (scene.isFrontLive) drawFront(clip, plate.front, 0);
 
