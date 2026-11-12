@@ -70,5 +70,5 @@ Planning is done. A working prototype of Scene 5 proves that clips and live play
 
 ## Team
 
-- **dh1**: code, art, video, sound.
-- **Writer**: story and dialogue, chapters 2–4.
+- **Sameer**: code, art, video, sound.
+- **Tibbian**: story and dialogue.
