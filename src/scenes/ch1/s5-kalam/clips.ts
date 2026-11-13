@@ -2,6 +2,8 @@
 // everything is at second t, and nothing else. The renderer asks for every
 // 1/24 s and encodes the frames. Clips start and end in rest poses, on a
 // multiple of SYNC seconds, so they join live play invisibly. RENDER only.
+// No clip fades (M7): the game's curtain fades the scene in and out, so what
+// lies in Mitu's boat (drawn live on top, per player) fades with it.
 import { STAGE, depthScale, depthY } from "../../../shared/depth";
 import { lerp } from "../../../shared/math";
 import { MITU_BOAT, WAKE, oarGeometry, strokePitch, wakeRing } from "../../../shared/mituBoat";
@@ -15,7 +17,6 @@ const ROW = { STROKE: 0.4, RECOVER: 0.25, GAP: S5.ROW_GAP };    // seconds
 // the boat surges on each pull and slows between: speed swings ±SURGE around
 // the path's own speed, fastest at the end of the pull (as in live play)
 const SURGE = { AMOUNT: 0.3, PEAK: ROW.STROKE };
-const FADE = 1.4;                                               // fade from/to black
 const OIL = defaultFlags().lampOil;                             // unused in clips: lights are live
 const DIR = S5.HEADING;                                         // -1: homeward, everything moves left
 // off-screen and far-away points, mirrored to match the direction of travel
@@ -91,7 +92,7 @@ function rowRings(t: number, t0: number, n: number, sx: number, boatX: (t: numbe
 }
 
 export const CLIPS: Record<string, ClipDef<S5ClipLook>> = {
-    // fade in from black; Mitu rows in from the right (homeward) and stops at MITU_START; far lightning
+    // Mitu rows in from the right (homeward) and stops at MITU_START; far lightning
     intro: {
         duration: S5.CLIP.intro,
         state(t) {
@@ -100,7 +101,7 @@ export const CLIPS: Record<string, ClipDef<S5ClipLook>> = {
             // two quick white pulses
             const flash = 0.32 * Math.exp(-Math.pow((t - 3.6) / 0.05, 2)) + 0.22 * Math.exp(-Math.pow((t - 3.82) / 0.08, 2));
             return {
-                t, darkness: 0, flash, fade: t < FADE ? 1 - t / FADE : 0, oil: OIL, marker: null,
+                t, darkness: 0, flash, fade: 0, oil: OIL, marker: null,
                 mitu: { x: boatX(t), z: S5.MITU_START.z, sx: DIR, roll: rowPitch(t, T0, N) },
                 pose: rowPose(t, T0, N, "near"),
                 kalamX: S5.KALAM.x, kalamPhase: kalamPhase(t), kalamNod: 0,
@@ -130,13 +131,12 @@ export const CLIPS: Record<string, ClipDef<S5ClipLook>> = {
         },
     },
 
-    // after his thanks: Kalam nods to her, and the picture fades to black
+    // after his thanks: Kalam nods to her (the curtain then fades the scene)
     farewell: {
         duration: S5.CLIP.farewell,
         state(t) {
-            const fadeFrom = S5.CLIP.farewell - FADE;
             return {
-                t, darkness: 1, flash: 0, fade: t > fadeFrom ? (t - fadeFrom) / FADE : 0, oil: OIL, marker: null,
+                t, darkness: 1, flash: 0, fade: 0, oil: OIL, marker: null,
                 mitu: { x: MITU_AFTER_HELP, z: S5.CONTACT.z, sx: DIR, roll: 0 },
                 pose: MITU_BOAT.REST,
                 kalamX: S5.KALAM_FREE, kalamPhase: 0, kalamNod: t > 0.3 && t < 1.5 ? Math.sin(Math.PI * (t - 0.3) / 1.2) : 0,
@@ -147,15 +147,15 @@ export const CLIPS: Record<string, ClipDef<S5ClipLook>> = {
 
     // starts where the choice was made (Mitu at MITU_START, at rest): Kalam nods
     // without a word and keeps pushing alone; Mitu rows on towards home, passing
-    // him in the foreground (she already faces home, so no turn); fade to black
+    // him in the foreground (she already faces home, so no turn) and out of the picture
     declined: {
         duration: S5.CLIP.declined,
         state(t) {
-            // off screen by T0 + ROW_TIME (9.8 s), before the fade to black is over
+            // off screen by T0 + ROW_TIME (9.8 s)
             const T0 = S5.DECLINED_ROW.T0, N = S5.DECLINED_ROW.STROKES, ROW_TIME = 8.4, RAMP = 1.2;
             const boatX = (at: number) => lerp(S5.MITU_START.x, OFF.DECLINED_TO, rowAway(surged(at, T0, N) - T0, RAMP, ROW_TIME));
             return {
-                t, darkness: lerp(0, 0.4, t / S5.CLIP.declined), flash: 0, fade: t > S5.CLIP.declined - FADE ? (t - (S5.CLIP.declined - FADE)) / FADE : 0, oil: OIL, marker: null,
+                t, darkness: lerp(0, 0.4, t / S5.CLIP.declined), flash: 0, fade: 0, oil: OIL, marker: null,
                 mitu: { x: boatX(t), z: S5.MITU_START.z, sx: DIR, roll: rowPitch(t, T0, N) },
                 pose: rowPose(t, T0, N, "near"),
                 kalamX: S5.KALAM.x, kalamPhase: t < 2 ? 0 : kalamPhase(t - 2), kalamNod: t > 0.2 && t < 1.6 ? Math.sin(Math.PI * (t - 0.2) / 1.4) : 0,

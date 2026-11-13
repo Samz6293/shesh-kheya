@@ -602,3 +602,29 @@ tighten as they are pulled, and the boat painter can show her hands
 off the oar.
 ```
 
+---
+
+## M7 — S5 in the chapter
+
+**Built**
+- S5 now shows what happened before it: Rahim's fish (always) and any memory found in S3 lie in Mitu's boat, drawn live by `Cargo` over its clips and live frames, under the reeds. The lantern already followed `lampOil`.
+- So that works: S5's reeds left the clips and are drawn live on top (`isFrontLive`, as in S2 to S4), and its clips no longer fade themselves (the curtain lifts over `intro` and closes over 1.4 s after `farewell` or `declined`). Otherwise the cargo would have shown as pale patches over a faded-out frame.
+- `render/paintFish.ts`: the fish's painter, moved out of S4's `paintCatch.ts` for S5 and S6 (S4's pixels unchanged). S5 loads the fish and memory sprites.
+- In the boat the memories now lie on top of the fish, and the flute a little higher, so it stays in sight (live only; no clip changes).
+
+**Checked:** frame review by dh1 (greenlight, no notes); `npm run render -- s5`; `npm run check-joins` (all 27 ok); `npm run build`. Headless: Continue into S5 with the flute found and oil at 70, both Help and Go home; the fish and flute show in her boat in the clips and in live play, the lantern lit. No page errors. Not played by hand.
+
+**TODOs left:** none new.
+
+**Suggested commit message**
+```
+Show the fish and memories in Mitu's boat in S5
+
+Scene 5 now carries what happened before it: Rahim's fish and any
+of Abba's things found in Scene 3 lie in Mitu's boat, drawn live
+over the clips and live play. For that the reeds are drawn live
+over S5's clips and the clips no longer fade themselves (the
+curtain does it), as in Scenes 2 to 4. The memories lie on top of
+the fish so the flute stays in sight.
+```
+

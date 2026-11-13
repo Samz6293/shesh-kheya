@@ -5,6 +5,8 @@
 // (`npm run render -- s5`) and running `npm run check-joins`.
 import { bob, depthScale, depthY, localToScreen } from "../../../shared/depth";
 import { JOURNEY, MITU_BOAT, mituSpriteNames } from "../../../shared/mituBoat";
+import { FISH, fishSpriteName } from "../../../shared/fish";
+import { MEMORY, memorySpriteName } from "../../../shared/memories";
 import type { BoatAnchor, FrameSprite, FrameState, Join, Point, S5Look, SpriteArt, SpriteDef } from "../../../types";
 
 export const S5 = {
@@ -43,10 +45,12 @@ export function kalamSpriteName(t: number): string {
     return `kalam_${Math.floor(kalamPhase(t) * S5.KALAM_FRAMES) % S5.KALAM_FRAMES}`;
 }
 
+// Mitu's boat, Kalam, and what can lie in her boat (her memories, Rahim's fish)
 export function s5SpriteNames(): string[] {
     const names = mituSpriteNames();
     for (let i = 0; i < S5.KALAM_FRAMES; i++) names.push(`kalam_${i}`);
-    return names;
+    for (let i = 0; i < FISH.FRAMES; i++) names.push(fishSpriteName(i));
+    return [...names, ...MEMORY.IDS.map(memorySpriteName)];
 }
 
 // one frame object, reused every frame so the game loop creates no garbage.

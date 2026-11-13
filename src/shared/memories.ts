@@ -18,7 +18,7 @@ export const MEMORY = {
     CARGO: {
         gamchha: [-66, -14],
         tiffin: [-12, -16],
-        flute: [52, -14],
+        flute: [44, -20],             // lies across the fish (S4 on), so it rides a little higher
     } as Record<MemoryId, Point>,
     FLAG: {
         gamchha: "foundGamchha",

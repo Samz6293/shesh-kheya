@@ -1,7 +1,7 @@
 // Scene 4 painters for the offline renderer: Rahim standing in his fishing
 // boat (any heave, laugh or look, from the joints in layout.ts), Mitu's boat
 // seen end-on (the middle of her turn for home), and the list of sprites the
-// game loads. The net and the fish are in paintCatch.ts; Mitu on her feet is
+// game loads. The net is in paintCatch.ts, the fish in render/paintFish.ts; Mitu on her feet is
 // S3's figure (paintGirl). RENDER only: the game never imports this file.
 import { MITU_BOAT, OAR_LYING } from "../../../shared/mituBoat";
 import { FISH, fishSpriteName } from "../../../shared/fish";
@@ -12,7 +12,8 @@ import { setSeed } from "../../../render/seed";
 import paintMitu from "../../../render/paintMitu";
 import { memoryJobs } from "../../../render/paintMemories";
 import { paintGirl } from "../s3-rowing/paint";
-import { paintFish, paintNet } from "./paintCatch";
+import paintFish from "../../../render/paintFish";
+import { paintNet } from "./paintCatch";
 import { RAHIM_POSE, S4, haulPose, hauling, rahimJoints } from "./layout";
 import type { Point, RahimPose, SpriteArt, SpriteJob, StrokeOptions } from "../../../types";
 

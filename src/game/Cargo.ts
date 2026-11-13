@@ -39,12 +39,6 @@ export default class Cargo {
 
     // everything aboard, placed in the boat, added to `out`
     add(out: FrameSprite[], boat: BoatAnchor, t: number): void {
-        for (const id of MEMORY.IDS) {
-            const s = this.memories[id];
-            if (!s || !isFound(id, this.game.progress.flags)) continue;
-            placeInBoat(s, id, boat);
-            out.push(s);
-        }
         if (this.hasFish && this.fish) {
             // lying still, and every so often one flap and a little hop
             const hop = fishHop(t);
@@ -56,6 +50,13 @@ export default class Cargo {
             this.fish.sx = boat.sx;
             this.fish.roll = boat.roll;
             out.push(this.fish);
+        }
+        // the memories after the fish, so they lie on top of it (the flute must stay in sight)
+        for (const id of MEMORY.IDS) {
+            const s = this.memories[id];
+            if (!s || !isFound(id, this.game.progress.flags)) continue;
+            placeInBoat(s, id, boat);
+            out.push(s);
         }
     }
 

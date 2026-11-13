@@ -7,6 +7,8 @@ import { blob, mass } from "../../../render/mass";
 import { context, flatten, group, makeCanvas, reflect } from "../../../render/layers";
 import { setSeed } from "../../../render/seed";
 import paintMitu from "../../../render/paintMitu";
+import { fishJobs } from "../../../render/paintFish";
+import { memoryJobs } from "../../../render/paintMemories";
 import { S5 } from "./layout";
 import type { Point, SpriteArt, SpriteJob } from "../../../types";
 
@@ -78,5 +80,5 @@ export function spriteJobs(): SpriteJob[] {
     for (let i = 0; i < S5.KALAM_FRAMES; i++) {
         jobs.push({ name: `kalam_${i}`, paint: () => paintKalam(i / S5.KALAM_FRAMES) });
     }
-    return jobs;
+    return [...jobs, ...fishJobs(), ...memoryJobs()];
 }
