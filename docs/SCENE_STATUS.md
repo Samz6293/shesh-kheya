@@ -23,6 +23,6 @@ Script: `docs/source/chapter-1-script.pdf` · Design: `docs/01-game-design.md` �
 | S3 | বৈঠা ও স্মৃতি (Rowing and memories) | M5 | approved | Approved by dh1 and merged to `main`, 2026-11-13 |
 | S4 | রহিম চাচা | M6 | approved | Approved by dh1, 2026-11-13 |
 | S5 | কালাম মাঝি | M1 | approved | Approved by dh1 and merged to `main`, 2026-11-12 (`e5fc2f0`) |
-| — | S5 in the chapter (real flags from S4) | M7 | not started | After S4 |
+| — | S5 in the chapter (real flags from S4) | M7 | approved | Approved by dh1, 2026-11-13 |
 | S6 | বাড়ি ফেরা (Return) | M8 | not started | Homeward: right to left (D18) |
 | — | Polish, deploy | M9, M10 | not started | After S6 |

@@ -60,5 +60,6 @@ export const SCENES: Record<string, SceneRender> = {
         spriteNames: s5SpriteNames(),
         joins: S5_JOINS,
         joinFrame: s5JoinFrame,
+        isFrontLive: true,
     },
 };
