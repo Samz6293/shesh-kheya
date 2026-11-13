@@ -557,3 +557,46 @@ and the clip overlay knows where the boat is. The boat painter can
 paint parts of the boat without changing any existing sprite.
 ```
 
+---
+
+## M6 — S4 Rahim
+
+**Built**
+- `src/scenes/ch1/s4-rahim/`: the plate (grey-violet dusk, clouds building, a far village ghat, the hijol forest on the far right; reeds as the live foreground), Rahim in his fishing boat (`paint.ts`, joints in `layout.ts`), the net at any height and the aair (`paintCatch.ts`), and five clips: `meet` (she rows in, outward), `grab` (she lays the oar down, steps to the stern's edge, turns and takes the net's line), `fish` (they heave it out with the fish thrashing in it; Rahim laughs), `look` (the empty net back in the water, Rahim looks at the sky, she takes up her oar), `leave` (her boat turns for home and she rows out left, D18).
+- `src/game/activities/NetPull.ts`: a mark slides along a bar; Space in the warm zone raises the net a step, a miss slips it back a third of a step (always less than a pull gains, so it can't stall). Rahim's three lines after the 1st, 3rd and 5th good pull, each waiting for the player (D9, D19).
+- `src/game/activities/FishLift.ts`: drag the fish from the net onto her boat; let go elsewhere and it slides back.
+- `src/game/Cargo.ts`: what lies in Mitu's boat (her memories, the fish), drawn live over clips and live frames; `MemoryPickup` uses it now. `src/shared/fish.ts`: the fish's size, flap and where it lies in the boat.
+- D21 (dh1): the turn for home is on screen; the net pull stays in the wide shot.
+
+**After dh1's frame review (8 notes, all fixed)**
+- For the net Mitu is on her feet (S2's figure, as in S3), hauling like Rahim: knees bent, leaning back, arms a natural length. Both lines go taut as they heave (`Rope.sag`, `ROPE.TAUT`).
+- The fish is painted inside the net, under the mesh (`net_fish_0..3`); the net comes up only just clear of the water, below their hands.
+- The turn: mid-turn the hull is drawn end-on (bow to the camera, `paintBoatEndOn`); Mitu and the lantern keep their size and ride their spots on the turning boat; oar rings in the water.
+
+**Shared changes:** `FrameState.ropes` (drawn behind the figures), `BoatParts.hands` and `isOarHidden`, `OAR_LYING` / `oarBetween()` and `MITU_BOAT.ON_FOOT_SCALE` moved to `mituBoat.ts` (S3's board uses them; its frames are unchanged, `s3/board end` still 1.15), `GirlOnFoot` (was `S3Girl`), `drawTimingBar()` in `lights.ts`, placeholder sounds `sfx_net_pull`, `sfx_net_slip`, `sfx_fish_jump`. `main.ts`: S4 plays between S3 and S5.
+
+**Checked:** `npx tsc --noEmit`; frame review by dh1 (8 notes fixed, then greenlight); `npm run render -- s4`; `npm run check-joins` (all 27 ok; S4's 8 joins 0.86 to 1.15); `npm run build`. Headless play-through with `?scene=s4`: lines, net pull timed like a player (6 good pulls, finished in about 23 s with Rahim's lines), the fish dragged into the boat (it lies there through `look` and `leave`), `leave`, then on into S5. No page errors. Not played by hand.
+
+**Known**
+- `leave.mp4` is 5.3 MB, a little over the 5 MB per clip target (13 s with a lot of motion). It could be shortened or encoded at a higher CRF if that matters for hosting.
+- S5 doesn't draw the fish or the memories in her boat yet: that is M7.
+
+**TODOs left:** none new.
+
+**Suggested commit message**
+```
+Add Scene 4: Rahim, the net and the fish
+
+Mitu rows up to Rahim, who is struggling with his net. She lays her
+oar down, takes the line and the player pulls in time (Space); a
+miss only lets the net slip back a little. Rahim tells what he saw
+of Abba as it comes up, with a big aair in it, which the player
+drags into her boat, where it stays. He looks at the sky and sends
+her home; her boat turns round on screen and she rows away (D21).
+
+What lies in her boat (memories, the fish) is now drawn by one
+Cargo helper over clips and live frames. Frames can draw ropes that
+tighten as they are pulled, and the boat painter can show her hands
+off the oar.
+```
+

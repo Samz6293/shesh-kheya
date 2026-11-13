@@ -20,6 +20,10 @@ export const MITU_BOAT = {
     STROKE_FRAMES: [0, 0.33, 0.66, 1],
     REST: { side: "near", p: 0.5 } as MituPose,
     GIRL: [-140, -16] as Point,               // where Mitu stands at the stern: her feet, from the anchor
+    // Mitu on her feet in the boat (S3, S4) is S2's figure: 104 px from her feet
+    // to the middle of her head, against 110 in the boat sprite. Drawn this much
+    // bigger, the two match when one becomes the other
+    ON_FOOT_SCALE: 110 / 104,
 };
 
 // How a stroke looks on the water, the same in clips and live play
@@ -85,3 +89,16 @@ export function oarAt(a: number, hand: Point): OarShape {
     const lower: Point = [hand[0] + dir[0] * OAR.GRIP_TO_LOWER, hand[1] + dir[1] * OAR.GRIP_TO_LOWER];
     return { a, hand, lower, top, tip, entry };
 }
+
+// the oar put down, lying in the boat: grip by the stern, blade forward on
+// the floor (S3 picks it up, S4 puts it down to help with the net)
+export const OAR_LYING = oarAt(1.3, [-128, -46]);
+
+// the oar between lying (u = 0) and held at rest (u = 1): angle and grip move together
+export function oarBetween(u: number): OarShape {
+    const held = oarGeometry(MITU_BOAT.REST);
+    const k = Math.max(0, Math.min(1, u));
+    const hand: Point = [OAR_LYING.hand[0] + (held.hand[0] - OAR_LYING.hand[0]) * k, OAR_LYING.hand[1] + (held.hand[1] - OAR_LYING.hand[1]) * k];
+    return oarAt(OAR_LYING.a + (held.a - OAR_LYING.a) * k, hand);
+}
+

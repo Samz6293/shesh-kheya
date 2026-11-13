@@ -3,7 +3,8 @@
 // water into the boat, where it stays (D12). All three are optional and
 // nothing can be missed for good: the hint shows whenever the boat is close.
 // Found or not is per player, so everything here is drawn live, over clips
-// and live frames alike (handoff rule 7). The scene says the lines.
+// and live frames alike (handoff rule 7); once aboard, Cargo draws it.
+// The scene says the lines.
 import { bob, depthScale, depthY } from "../../shared/depth";
 import { drawFigures } from "../../shared/compose";
 import { drawGlow } from "../../shared/lights";
@@ -11,6 +12,7 @@ import { lerp, smooth } from "../../shared/math";
 import { MITU_BOAT } from "../../shared/mituBoat";
 import { MEMORY, isFound, memorySpriteName, placeInBoat } from "../../shared/memories";
 import type Boat from "../Boat";
+import type Cargo from "../Cargo";
 import type { BoatAnchor, FrameSprite, Game, MemoryId, SpriteArt } from "../../types";
 
 const CONFIG = {
@@ -36,18 +38,11 @@ export default class MemoryPickup {
     private lift: Lift | null = null;
     private isHinting = false;
     private floatSprites = {} as Record<MemoryId, FrameSprite>;
-    private boatSprites = {} as Record<MemoryId, FrameSprite>;
     private drawList: FrameSprite[] = [];
 
-    constructor(private game: Game, private boat: Boat, private spots: Record<MemoryId, { x: number, z: number }>, art: Record<string, SpriteArt>) {
-        // in the boat (or on the way) a memory has no reflection of its own
-        const noReflection = document.createElement("canvas");
-        noReflection.width = 1;
-        noReflection.height = 1;
+    constructor(private game: Game, private boat: Boat, private spots: Record<MemoryId, { x: number, z: number }>, art: Record<string, SpriteArt>, private cargo: Cargo) {
         for (const id of MEMORY.IDS) {
-            const a = art[memorySpriteName(id)];
-            this.floatSprites[id] = { def: MEMORY.SPRITE, art: a, x: spots[id].x, z: spots[id].z, sx: 1, roll: 0 };
-            this.boatSprites[id] = { def: MEMORY.SPRITE, art: { img: a.img, refl: noReflection }, x: 0, z: 0, sx: 1, roll: 0, y: 0 };
+            this.floatSprites[id] = { def: MEMORY.SPRITE, art: art[memorySpriteName(id)], x: spots[id].x, z: spots[id].z, sx: 1, roll: 0 };
         }
         document.addEventListener("keydown", this.onKeyDown);
     }
@@ -98,11 +93,7 @@ export default class MemoryPickup {
         list.length = 0;
         if (withFloating) this.addFloating(list);
         if (boat) {
-            for (const id of MEMORY.IDS) {
-                if (!isFound(id, this.game.progress.flags)) continue;
-                placeInBoat(this.boatSprites[id], id, boat);
-                list.push(this.boatSprites[id]);
-            }
+            this.cargo.add(list, boat, t);
             if (this.lift) list.push(this.lifted(this.lift, boat, t));
         }
         drawFigures(ctx, list, backing, t);
@@ -126,7 +117,7 @@ export default class MemoryPickup {
 
     // on its way from the water to its place in the boat: rising, then dropping in
     private lifted(lift: Lift, boat: BoatAnchor, t: number): FrameSprite {
-        const s = this.boatSprites[lift.id];
+        const s = this.cargo.memorySprite(lift.id);
         placeInBoat(s, lift.id, boat);
         const u = smooth(Math.min(1, (t - lift.start) / CONFIG.LIFT));
         s.x = lerp(lift.x, s.x, u);

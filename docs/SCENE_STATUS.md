@@ -20,8 +20,8 @@ Script: `docs/source/chapter-1-script.pdf` · Design: `docs/01-game-design.md` �
 | — | Save, transitions, scene order | M2 | approved | Approved by dh1, 2026-11-12 |
 | S1 | শুরু (Opening) | M3 | approved | No video. Approved by dh1, 2026-11-12 |
 | S2 | ঘর (Home) | M4 | approved | Approved by dh1, 2026-11-13 |
-| S3 | বৈঠা ও স্মৃতি (Rowing and memories) | M5 | ready for play-test | Outward: left to right (D18). Rendered; joins ok |
-| S4 | রহিম চাচা | M6 | not started | Outward: left to right (D18) |
+| S3 | বৈঠা ও স্মৃতি (Rowing and memories) | M5 | approved | Approved by dh1 and merged to `main`, 2026-11-13 |
+| S4 | রহিম চাচা | M6 | ready for play-test | In outward, home leftward after an on-screen turn (D18, D21). Rendered; joins ok |
 | S5 | কালাম মাঝি | M1 | approved | Approved by dh1 and merged to `main`, 2026-11-12 (`e5fc2f0`) |
 | — | S5 in the chapter (real flags from S4) | M7 | not started | After S4 |
 | S6 | বাড়ি ফেরা (Return) | M8 | not started | Homeward: right to left (D18) |

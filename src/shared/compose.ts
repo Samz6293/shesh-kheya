@@ -7,6 +7,7 @@
 // bangle), light.
 import { depthScale, depthY, bob, STAGE, SYNC } from "./depth";
 import { inkRGBA } from "./ink";
+import type { Rope } from "../types";
 import { drawFlashAndFade, drawGlints, drawLightRing, drawLights, drawMarker } from "./lights";
 import type { FrameSprite, FrameState, Front, Plate, Ring } from "../types";
 
@@ -36,6 +37,8 @@ const SWAY = {
     SLICE: 4,                     // px: a reed bends by drawing it in thin rows, each shifted
 };
 
+const ROPE_INK = 0.72;            // jute rope: a strong grey, lighter than the figures
+
 const SOLID = {
     BLUR: "blur(1.5px)",          // closes the gaps between bristle marks, and leaves a hair of paper round each figure
     STACK: 8,                     // copies drawn on top of each other: even a pale wash becomes fully solid
@@ -60,6 +63,7 @@ export function composeFrame(ctx: CanvasRenderingContext2D, plate: Plate, st: Fr
     ctx.globalCompositeOperation = "multiply";
     for (const s of st.sprites) drawSprite(ctx, s, s.art.refl, st.t);
     drawRings(ctx, st.rings, st.t);
+    if (st.ropes) drawRopes(ctx, st.ropes);
     drawSolid(ctx, st.sprites, plate.backing, st.t);
     if (withFront) drawFront(ctx, plate.front, st.t);
 
@@ -196,6 +200,24 @@ function drawRings(ctx: CanvasRenderingContext2D, rings: Ring[], t: number): voi
             ctx.ellipse(r.x, r.y, rad * 1.4, rad * 0.24, 0, r.a0 + k, r.a0 + k + RING.ARC);
             ctx.stroke();
         }
+    }
+}
+
+// ropes as plain ink lines, the same in clips and live frames; each figure
+// drawn afterwards covers the end it holds.
+// New here: quadraticCurveTo(cx, cy, x, y) draws a curve from the current
+// point to (x, y), pulled towards (cx, cy): a control point below the middle
+// makes the rope sag. Docs: MDN, CanvasRenderingContext2D.quadraticCurveTo()
+function drawRopes(ctx: CanvasRenderingContext2D, ropes: Rope[]): void {
+    ctx.strokeStyle = inkRGBA(ROPE_INK);
+    ctx.lineCap = "round";
+    for (const r of ropes) {
+        const mx = (r.a[0] + r.b[0]) / 2, my = (r.a[1] + r.b[1]) / 2 + r.sag;
+        ctx.lineWidth = r.width;
+        ctx.beginPath();
+        ctx.moveTo(r.a[0], r.a[1]);
+        ctx.quadraticCurveTo(mx, my, r.b[0], r.b[1]);
+        ctx.stroke();
     }
 }
 

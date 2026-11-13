@@ -28,7 +28,7 @@ export default function paintMitu(pose: MituPose, parts: BoatParts = WHOLE): Spr
     // a hidden part goes onto this spare canvas instead (see the header)
     const spare = group(def.w, def.h);
     const on = (isShown: boolean, g: InkLayer) => (isShown ? g : spare);
-    const isPoseOar = parts.girl && parts.oar === null;
+    const isPoseOar = parts.girl && parts.oar === null && !parts.isOarHidden;
 
     const paintOar = (g: InkLayer, tone: number, oar: OarShape) => {
         stroke(g, [P(oar.top), P(oar.entry)], { w: 4.5, tone, dryness: 0.12, bristles: 4, profile: "even", loaded: 1, body: 0.3 });
@@ -86,11 +86,12 @@ export default function paintMitu(pose: MituPose, parts: BoatParts = WHOLE): Spr
     // orna trailing behind her
     stroke(g, PP([[fx - 4, fy - 99], [fx - 28, fy - 96], [fx - 50, fy - 104], [fx - 74, fy - 98]]), { w: 7, tone: 0.42, dryness: 0.45, bristles: 6, profile: "tip", loaded: 0.7, body: 0.5 });
 
-    // arms to the oar
+    // arms to the oar (or wherever the hands were put)
     const oar = oarGeometry(pose);
+    const [hand, lower] = parts.hands ?? [oar.hand, oar.lower];
     const sh: Point = [fx + 2, fy - 94];
-    stroke(g, PP([sh, [(sh[0] + oar.hand[0]) / 2 + 4, (sh[1] + oar.hand[1]) / 2 + 8], oar.hand]), { w: 3, tone: 0.95, dryness: 0.1, bristles: 3, profile: "even", body: 0.3 });
-    stroke(g, PP([[sh[0] + 3, sh[1] + 2], [(sh[0] + oar.lower[0]) / 2 + 6, (sh[1] + oar.lower[1]) / 2 + 4], oar.lower]), { w: 3, tone: 0.95, dryness: 0.1, bristles: 3, profile: "even", body: 0.3 });
+    stroke(g, PP([sh, [(sh[0] + hand[0]) / 2 + 4, (sh[1] + hand[1]) / 2 + 8], hand]), { w: 3, tone: 0.95, dryness: 0.1, bristles: 3, profile: "even", body: 0.3 });
+    stroke(g, PP([[sh[0] + 3, sh[1] + 2], [(sh[0] + lower[0]) / 2 + 6, (sh[1] + lower[1]) / 2 + 4], lower]), { w: 3, tone: 0.95, dryness: 0.1, bristles: 3, profile: "even", body: 0.3 });
     if (pose.side === "near") paintOar(on(isPoseOar, boat), 0.98, oar);
 
     // an oar placed by hand (lying in the boat, being picked up): last, so it changes nothing above

@@ -135,6 +135,15 @@ export interface FrameState {
     marker: Marker | null
     glints: Glint[]
     ring: LightRing | null        // a ring of warm light spreading out (the baby's kick)
+    ropes?: Rope[]                // drawn behind every figure, so hands and hulls cover their ends (S4's net)
+}
+
+// a rope between two points on screen, sagging a little in the middle
+export interface Rope {
+    a: Point
+    b: Point
+    sag: number                   // px the middle hangs below the straight line
+    width: number                 // px
 }
 
 // one ring of light; u 0..1 is how far through its life it is
@@ -177,6 +186,8 @@ export interface BoatParts {
     lantern: boolean
     girl: boolean
     oar: OarShape | null
+    hands?: [Point, Point]        // her two hands somewhere else (S4: on the net rope); left out = on the oar
+    isOarHidden?: boolean         // the girl without her oar (S4's turn paints the oar with the hull)
 }
 
 // ---------- scene 5 ----------
@@ -211,8 +222,8 @@ export interface S3Look {
     rings: Ring[]
 }
 
-// Mitu as a figure on her feet (S3's boarding): the S2 figure, on the jetty or in the boat
-export interface S3Girl {
+// Mitu as a figure on her feet (S3's boarding, S4's net): the S2 figure, on the jetty or in the boat
+export interface GirlOnFoot {
     pose: MituFloorPose
     x: number
     y: number                     // her feet on screen
@@ -224,8 +235,55 @@ export interface S3Girl {
 export interface S3ClipLook extends S3Look {
     pose: MituPose                // the rowing pose, once she holds the oar
     parts: BoatParts              // which parts of the boat are painted
-    girl: S3Girl | null           // Mitu on her feet, while she isn't at the oar
+    girl: GirlOnFoot | null           // Mitu on her feet, while she isn't at the oar
     lantern: Point | null         // the lantern on its own (carried or just set down): its foot on screen
+}
+
+// ---------- scene 4 ----------
+// Rahim in his boat. haul: 0..1 through one heave on the net rope;
+// laugh 0..1 (head back, shoulders up); look 0..1 (straightens, looks at the sky)
+export interface RahimPose {
+    haul: number
+    laugh: number
+    look: number
+}
+
+export interface S4Look {
+    t: number
+    fade: number
+    mitu: BoatLook
+    rings: Ring[]
+    net: number                   // how far the net has come up, px: 0 in the water .. NET.UP held up; -1 = no net
+    rahimHolds: boolean           // Rahim's rope runs from his hands to the net
+    mituPull: number | null       // Mitu on her feet hauling the net's line, 0..1 through a heave; null = not holding it
+}
+
+// a moment between clips: what the live scene shows while lines wait
+export interface S4State {
+    mitu: string                  // the boat's sprite (with or without Mitu at the oar)
+    rahim: string | null          // null: his heaving loop
+    net: number                   // as in S4Look
+    rahimHolds: boolean
+    mituPull: number | null
+    fish: boolean                 // the fish is in the net
+}
+
+// the pictures of one S4 frame
+export interface S4Art {
+    mitu: SpriteArt
+    rahim: SpriteArt
+    net: SpriteArt | null
+    girl: SpriteArt | null        // Mitu on her feet, when she is
+}
+
+// what a clip adds to a look: the exact poses to paint
+export interface S4ClipLook extends S4Look {
+    pose: MituPose
+    parts: BoatParts
+    rahim: RahimPose
+    fish: number                  // 0..1 through one flap of the fish in the net; -1 = no fish there
+    girl: GirlOnFoot | null       // Mitu on her feet (laying the oar down, hauling); null = the rowing sprite
+    isTurning: boolean            // the boat swings round (hull, Mitu and lantern drawn apart)
 }
 
 // ---------- scene 2 ----------
