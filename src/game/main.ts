@@ -20,6 +20,7 @@ import { SAVE, loadSave } from "./save";
 import playOpening from "../scenes/ch1/s1-opening/play";
 import playHome from "../scenes/ch1/s2-home/play";
 import playRowing from "../scenes/ch1/s3-rowing/play";
+import playRahim from "../scenes/ch1/s4-rahim/play";
 import playKalam from "../scenes/ch1/s5-kalam/play";
 import type { Game, ScenePlay } from "../types";
 
@@ -34,6 +35,7 @@ const SCENES: [string, ScenePlay][] = [
     ["s1", playOpening],
     ["s2", playHome],
     ["s3", playRowing],
+    ["s4", playRahim],
     ["s5", playKalam],
 ];
 

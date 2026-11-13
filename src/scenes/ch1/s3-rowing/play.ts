@@ -12,6 +12,7 @@ import { MEMORY } from "../../../shared/memories";
 import Boat from "../../../game/Boat";
 import SpeakerLight from "../../../game/SpeakerLight";
 import MemoryPickup from "../../../game/activities/MemoryPickup";
+import Cargo from "../../../game/Cargo";
 import { lineCount } from "../../../content/text";
 import { cues } from "./cues";
 import { S3, s3Frame, s3SpriteNames, speakerPoint } from "./layout";
@@ -48,7 +49,7 @@ export default async function playRowing(game: Game): Promise<void> {
         t: 0, fade: 0, lit: 1, rings: boat.rings,
         mitu: { x: boat.x, z: boat.z, sx: boat.facing, roll: 0 },
     };
-    const memories = new MemoryPickup(game, boat, S3.MEMORIES, art);
+    const memories = new MemoryPickup(game, boat, S3.MEMORIES, art, new Cargo(game, art));
     const speaker = new SpeakerLight();
     const floating: FrameSprite[] = [];
     let glide: Glide | null = null;

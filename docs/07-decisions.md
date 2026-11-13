@@ -104,3 +104,8 @@ Each decision has a recommendation. **Open** ones need dh1's answer before the F
 - **Lantern:** Dadi reaches behind her for the lantern and holds it out (her first line before, "Take this..." while she holds it); Mitu takes it and sets it down by the bottle; the close-up.
 - **Ending:** Mitu picks up the lantern and walks off along a walkway to the ghat (right edge); slow fade to black.
 - **No new text:** prompts and the checklist are pictures. **No music** until a real recording exists.
+
+### D21 — S4 staging
+**Status:** Decided (dh1, 2026-11-13)
+- **Turning for home:** Mitu arrives outward (left to right), and after Rahim sends her home she turns round on screen: the boat swings end-on to the camera and back, now facing left, and she rows out past the left edge (homeward, D18).
+- **The net pull stays in the wide shot:** the net rises out of the water between the two boats with each hit; the timing bar sits at the bottom. No close-up plate.

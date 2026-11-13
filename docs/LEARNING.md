@@ -52,3 +52,8 @@ Two to four lines per milestone: each new concept and the file it lives in. Ever
 - **Arriving exactly on a sync point.** `untilSync()` says how long until the next sync point; the glide to `leave` is stretched to last exactly that long, so the boat is at rest in the right place when the clip starts. File: `src/scenes/ch1/s3-rowing/play.ts`.
 - **Computed keys.** `{ [name]: true }` uses the value of `name` as the key, so one line sets whichever flag a memory has. File: `src/game/activities/MemoryPickup.ts`. Docs: MDN, "Object initializer".
 
+## M6 — S4 Rahim
+- **A rope as a curve.** `quadraticCurveTo()` draws from one point to another, bent towards a control point; putting it below the middle makes the rope sag, and less sag reads as a rope pulled taut. File: `src/shared/compose.ts` (`drawRopes`). Docs: MDN, `CanvasRenderingContext2D.quadraticCurveTo()`.
+- **A smooth to-and-fro.** `-cos(2π·phase)` runs from -1 to 1 and back, slowing at the ends like a pendulum: the timing bar's mark, with the warm zone in the middle where it moves fastest. File: `src/game/activities/NetPull.ts`.
+- **Turning a flat picture round.** Squashing a side view with `sx = cos(angle)` works until it is edge-on; there a separate end-on picture takes over, and what must not squash (Mitu, the lantern) is drawn on its own at its spot on the turning boat. File: `src/scenes/ch1/s4-rahim/clips.ts` (`leave`, `ride`).
+

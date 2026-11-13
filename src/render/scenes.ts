@@ -10,6 +10,10 @@ import paintS3Plate from "../scenes/ch1/s3-rowing/paintPlate";
 import { spriteJobs as s3SpriteJobs } from "../scenes/ch1/s3-rowing/paint";
 import { clipFrame as s3ClipFrame } from "../scenes/ch1/s3-rowing/clips";
 import { JOINS as S3_JOINS, S3, s3JoinFrame, s3SpriteNames } from "../scenes/ch1/s3-rowing/layout";
+import paintS4Plate from "../scenes/ch1/s4-rahim/paintPlate";
+import { spriteJobs as s4SpriteJobs } from "../scenes/ch1/s4-rahim/paint";
+import { clipFrame as s4ClipFrame } from "../scenes/ch1/s4-rahim/clips";
+import { JOINS as S4_JOINS, S4, s4JoinFrame, s4SpriteNames } from "../scenes/ch1/s4-rahim/layout";
 import paintS5Plate from "../scenes/ch1/s5-kalam/paintPlate";
 import { spriteJobs as s5SpriteJobs } from "../scenes/ch1/s5-kalam/paint";
 import { clipFrame as s5ClipFrame } from "../scenes/ch1/s5-kalam/clips";
@@ -36,6 +40,16 @@ export const SCENES: Record<string, SceneRender> = {
         spriteNames: s3SpriteNames(),
         joins: S3_JOINS,
         joinFrame: s3JoinFrame,
+        isFrontLive: true,
+    },
+    [S4.ID]: {
+        paintPlate: paintS4Plate,
+        spriteJobs: s4SpriteJobs,
+        clips: S4.CLIP,
+        clipFrame: s4ClipFrame,
+        spriteNames: s4SpriteNames(),
+        joins: S4_JOINS,
+        joinFrame: s4JoinFrame,
         isFrontLive: true,
     },
     [S5.ID]: {

@@ -5,14 +5,12 @@
 // live play starts from. A pure function of time, like every clip. RENDER only.
 import { bob, depthY } from "../../../shared/depth";
 import { clamp01, lerp, smooth } from "../../../shared/math";
-import { MITU_BOAT, oarAt, oarGeometry } from "../../../shared/mituBoat";
+import { MITU_BOAT, OAR_LYING, oarBetween } from "../../../shared/mituBoat";
 import { mituSkeleton } from "../s2-home/poses";
 import { S3 } from "./layout";
-import type { BoatParts, MituFloorPose, OarShape, Point, S3ClipLook, S3Girl } from "../../../types";
+import type { BoatParts, MituFloorPose, Point, S3ClipLook, GirlOnFoot } from "../../../types";
 
-// S2's figure is 104 px from her feet to the middle of her head; in the boat
-// sprite she is 110. Drawn this much bigger, the two match when they swap
-const FIGURE_SCALE = 110 / 104;
+const FIGURE_SCALE = MITU_BOAT.ON_FOOT_SCALE;
 const STAND: MituFloorPose = { walk: 0, low: 0, sit: 0, lean: 0, reach: null, carry: false };
 const STRIDE = 0.8;                           // seconds per stride (two steps), as in S2's `leave`
 const LANTERN_HANDLE = 28;                    // px from the lantern's middle up to its handle
@@ -32,8 +30,7 @@ const X = {
     HULL_START: S3.MOORED.x - MITU_BOAT.HULL_HALF,             // past this she is over the boat
 };
 
-// the oar at rest, lying in the boat: grip by the stern, blade forward on the floor
-const OAR_RESTING = oarAt(1.3, [-128, -46]);
+const OAR_RESTING = OAR_LYING;
 const BEND: MituFloorPose = { ...STAND, low: 0.6, lean: 0.45 };
 
 // 0..1 between times a and b, eased at both ends
@@ -69,12 +66,6 @@ function inBoat([lx, ly]: Point, t: number): Point {
     return [S3.MOORED.x + lx, depthY(S3.MOORED.z) + bob(t, 1) + ly];
 }
 
-// the oar from resting to held: angle and grip move together
-function oarLift(u: number): OarShape {
-    const held = oarGeometry(MITU_BOAT.REST);
-    return oarAt(lerp(OAR_RESTING.a, held.a, u), lerpPoint(OAR_RESTING.hand, held.hand, u));
-}
-
 export function boardLook(t: number): S3ClipLook {
     const look: S3ClipLook = {
         t, fade: 0, lit: span(t, T.LIGHT), rings: [],
@@ -93,7 +84,7 @@ export function boardLook(t: number): S3ClipLook {
         return look;
     }
 
-    const girl: S3Girl = { pose: { ...STAND, carry: true }, x: X.START, y: S3.JETTY.Y, sx: 1, isInBoat: false };
+    const girl: GirlOnFoot = { pose: { ...STAND, carry: true }, x: X.START, y: S3.JETTY.Y, sx: 1, isInBoat: false };
     if (t < T.STEP[0]) {
         // along the jetty
         girl.x = lerp(X.START, X.JETTY_END, (t - T.WALK_IN[0]) / (T.WALK_IN[1] - T.WALK_IN[0]));
@@ -135,7 +126,7 @@ export function boardLook(t: number): S3ClipLook {
         girl.x = X.STERN;
         girl.y = floorY(t);
         const lift = span(t, T.LIFT);
-        const oar = t < T.LIFT[0] ? OAR_RESTING : oarLift(lift);
+        const oar = t < T.LIFT[0] ? OAR_RESTING : oarBetween(lift);
         const bent = span(t, T.BEND) * (1 - lift);
         const reach = toLocal(girl, inBoat(oar.hand, t)), reachB = toLocal(girl, inBoat(oar.lower, t));
         const hands = span(t, T.BEND);

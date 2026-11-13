@@ -93,6 +93,18 @@ export const ONE_SHOTS = {
         { duration: 0.5, filter: "bandpass", freq: 1300, sweepTo: 500, q: 1, gain: 0.05, attack: 0.05 },
     ],
     sfx_flute_memory: [],         // only a tune (TUNES below)
+    // S4
+    sfx_net_pull: [
+        { duration: 0.45, filter: "bandpass", freq: 700, sweepTo: 1600, q: 0.9, gain: 0.08, attack: 0.06 },
+        { duration: 0.5, filter: "lowpass", freq: 240, q: 0.8, gain: 0.12, attack: 0.05, brown: true },
+    ],
+    sfx_net_slip: [
+        { duration: 0.35, filter: "bandpass", freq: 1200, sweepTo: 500, q: 1, gain: 0.05, attack: 0.03 },
+    ],
+    sfx_fish_jump: [
+        { duration: 0.18, filter: "bandpass", freq: 1800, q: 0.7, gain: 0.07, attack: 0.01 },
+        { duration: 0.4, filter: "lowpass", freq: 380, q: 0.8, gain: 0.14, attack: 0.02, brown: true, delay: 0.08 },
+    ],
     // TODO: a real, respectful recording of a far azan (04-audio.md); no placeholder is made for it
     sfx_azan_far: [],
 } satisfies Record<string, Burst[]>;
@@ -120,6 +132,8 @@ export const DROPS: Partial<Record<keyof typeof ONE_SHOTS, Drops>> = {
     sfx_oar_3: { count: 6, from: 580, to: 1250, delay: 0.04, spread: 0.45, gain: 0.07 },
     sfx_ripple: { count: 3, from: 900, to: 1300, delay: 0.05, spread: 0.4, gain: 0.05 },
     sfx_pickup: { count: 6, from: 420, to: 900, delay: 0.25, spread: 0.6, gain: 0.07 },
+    sfx_net_pull: { count: 5, from: 380, to: 820, delay: 0.2, spread: 0.5, gain: 0.06 },
+    sfx_fish_jump: { count: 4, from: 500, to: 1100, delay: 0.06, spread: 0.3, gain: 0.07 },
 };
 
 // tunes that go with a one-shot. The flute: Abba's tune, a few slow notes

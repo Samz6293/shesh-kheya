@@ -20,6 +20,7 @@ const LIGHT = {
     BANGLE: "255,211,110",        // #FFD36E
     KICK: "255,214,160",          // the soft ring when the baby moves
     HOTSPOT: "255,230,180",       // where the player can touch or pick something up
+    TIMING: "250,178,92",         // the "now" zone of the net's timing bar (lantern orange)
     SPEAKER: "250,178,92",        // over the head of whoever is talking (lantern orange, painted)
     BLACK: "8,7,10",
 };
@@ -46,6 +47,16 @@ const MARKER = {
 const GLINT: Record<Glint["light"], { strength: number, waves: [number, number][] }> = {
     kupi: { strength: 0.8, waves: [] },
     bangle: { strength: 0.9, waves: [] },
+};
+
+const TIMING_BAR = {
+    ZONE_HEIGHT: 18,              // px
+    LINE: 3,
+    MARK: 9,                      // radius of the sliding mark
+    ZONE: 0.35,                   // the zone's strength, and how much a hit adds
+    HIT: 0.5,
+    INK: 0.7,
+    MARK_INK: 0.95,
 };
 
 const GLOW = {
@@ -179,6 +190,29 @@ export function drawGlow(ctx: CanvasRenderingContext2D, x: number, y: number, r:
     ctx.fillStyle = gr;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+}
+
+// game only: the net's timing bar. A thin ink line, a warm zone in the middle
+// ("now"), and a round ink mark sliding along it. mark -1..1 along the bar;
+// zone: half the zone's width as a share of the bar; glow 0..1 lights the zone (a hit)
+export function drawTimingBar(ctx: CanvasRenderingContext2D, x: number, y: number, half: number, zone: number, mark: number, glow: number): void {
+    ctx.save();
+    const B = TIMING_BAR;
+    ctx.fillStyle = `rgba(${LIGHT.TIMING},${B.ZONE + B.HIT * glow})`;
+    ctx.fillRect(x - half * zone, y - B.ZONE_HEIGHT / 2, 2 * half * zone, B.ZONE_HEIGHT);
+    ctx.globalCompositeOperation = "multiply";
+    ctx.strokeStyle = inkRGBA(B.INK);
+    ctx.lineWidth = B.LINE;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(x - half, y);
+    ctx.lineTo(x + half, y);
+    ctx.stroke();
+    ctx.fillStyle = inkRGBA(B.MARK_INK);
+    ctx.beginPath();
+    ctx.arc(x + mark * half, y, B.MARK, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
 }
