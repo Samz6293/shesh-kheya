@@ -44,7 +44,7 @@ export const S4 = {
     LEAVE_ROW: { t0: 4.2, n: 12 },            // rowing away home, after the turn
     TURN: [1.4, 3.8],                         // seconds into `leave` while the boat swings round
     ROPE: { WIDTH: 1.8, SAG: 16, TAUT: 0.85 },   // px at scale 1; TAUT: how much of the sag a heave takes out
-    TIMING_BAR: { X: 960, Y: 950, HALF: 230 },   // the net's timing bar, above the key hint
+    TIMING_BAR: { X: 960, Y: 1050, HALF: 230 },  // the net's timing bar: just below the key hint (the game draws it; clips never do)
 };
 
 // ---------- Rahim ----------

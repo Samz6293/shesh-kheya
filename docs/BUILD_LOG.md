@@ -573,6 +573,8 @@ paint parts of the boat without changing any existing sprite.
 - The fish is painted inside the net, under the mesh (`net_fish_0..3`); the net comes up only just clear of the water, below their hands.
 - The turn: mid-turn the hull is drawn end-on (bow to the camera, `paintBoatEndOn`); Mitu and the lantern keep their size and ride their spots on the turning boat; oar rings in the water.
 
+**After dh1's play-test:** the timing bar sat across the key hint's text; it is now just below the hint box (`TIMING_BAR.Y`, game only, no re-render).
+
 **Shared changes:** `FrameState.ropes` (drawn behind the figures), `BoatParts.hands` and `isOarHidden`, `OAR_LYING` / `oarBetween()` and `MITU_BOAT.ON_FOOT_SCALE` moved to `mituBoat.ts` (S3's board uses them; its frames are unchanged, `s3/board end` still 1.15), `GirlOnFoot` (was `S3Girl`), `drawTimingBar()` in `lights.ts`, placeholder sounds `sfx_net_pull`, `sfx_net_slip`, `sfx_fish_jump`. `main.ts`: S4 plays between S3 and S5.
 
 **Checked:** `npx tsc --noEmit`; frame review by dh1 (8 notes fixed, then greenlight); `npm run render -- s4`; `npm run check-joins` (all 27 ok; S4's 8 joins 0.86 to 1.15); `npm run build`. Headless play-through with `?scene=s4`: lines, net pull timed like a player (6 good pulls, finished in about 23 s with Rahim's lines), the fish dragged into the boat (it lies there through `look` and `leave`), `leave`, then on into S5. No page errors. Not played by hand.
