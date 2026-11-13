@@ -1,86 +1,82 @@
 ---
 name: save-work
-description: Save the person's changes to GitHub as a pull request. Use when they say "save my work", "push", "upload", "send it to dh1", or finish a piece of work. Handles cloud sessions, local clones and ZIP downloads with no git folder.
+description: Get Tibbian's finished work to GitHub and to Sameer. Use when a scene or change is approved, or when he says "save my work", "push", "upload", "send it to Sameer". Gives him the git commands to copy-paste, the pull request text the first time, and the message to send Sameer.
 ---
 
-# Save work to GitHub
+# Save work: commands to copy, then a message for Sameer
 
-The person may not know git. Do every step yourself, explain in one plain sentence what you are doing, and never ask them to type git commands unless a step can only happen on their side (signing in).
+From Chapter 2 on, Tibbian builds the game and Sameer (dh1) only merges (see `info`). Tibbian runs every git command himself: **give him the commands, one per code block, in order; never run commit, push or branch commands for him.** You may run read-only ones (`git status`, `git branch --show-current`, `git log`, `git diff`) to know what to tell him.
 
 Repository: `https://github.com/Samz6293/shesh-kheya` (if `git remote get-url origin` says otherwise, use that).
 
+## When
+Only after Tibbian has said everything is right: the previews were reviewed, the clips rendered, the scene play-tested, and he said "approved" (`start` skill). For a small change (a dialogue fix, a script revision) his "looks good" is enough.
+
+Before giving any commands:
+- Mark the scene `approved` in `docs/SCENE_STATUS.md` (with the date), so the status goes into the same commit.
+- Make sure the `docs/BUILD_LOG.md` entry, its suggested commit message, and the `docs/LEARNING.md` lines are written.
+- `npx tsc --noEmit`, `npm run check-joins` and `npm run build` pass (run them yourself).
+
 ## Never
-- Push to `main`, force-push, or rewrite history.
-- Commit files outside the person's area. The writer's area is `docs/source/`, `src/content/` and `story/`. If other files changed, ask before including them.
-- Commit secrets, `node_modules/`, or large files that aren't game assets.
+- Tell him to push to `main`, merge, force-push or rewrite history.
+- Include secrets, `node_modules/` or `dist/`.
+- Change Chapter 1's scenes. If shared code changed in a way that could affect Chapter 1, say so in the message for Sameer.
 
-## 1. Find out where you are
+## 1. Which branch
+One branch per chapter: `chapter-2`, `chapter-3`, … `git branch --show-current` tells you where he is.
+- On the right chapter branch: go on.
+- On `main`, or the chapter's branch doesn't exist yet: give him the commands to make it (from `main`, or from the previous chapter's branch if that isn't merged yet, so his unmerged work comes along), as in `info` section 3.
+- Uncommitted changes and he must switch branch: `git switch` carries them along; if it refuses, give `git stash`, the switch, `git stash pop`.
+
+## 2. The commands
+```
+git add -A
+```
+```
+git commit -m "<subject>" -m "<body>" -m "<attribution line, if the session gives one>"
+```
+```
+git push
+```
+(The first push of a new branch is `git push -u origin chapter-N`.)
+
+Commit message: subject in the imperative, capitalised, no period, under 50 characters; the body says what and why, wrapped at 72. Take it from the build log entry.
+
+The first push on a new computer opens a browser window to sign in to GitHub: tell him to approve it.
+
+## 3. First push of a chapter: the pull request
+Give him this link to click, then **Create pull request**:
+`https://github.com/Samz6293/shesh-kheya/compare/main...chapter-N?expand=1`
+
+With a title and description to paste: the chapter, the scenes so far, and the attribution line if the session gives one. Later pushes land in the same pull request by themselves: say so.
+
+To give the pull request's address in Sameer's message later: it is shown on that page after creating it; ask him to paste it to you once, then reuse it.
+
+## 4. The message for Sameer
+Write it ready to copy, in a code block, exactly in this shape:
 
 ```
-git rev-parse --is-inside-work-tree
+Hi Sameer, I pushed new work to chapter-N.
+Pull request: <link>
+
+What's new:
+- <scene or change, in a few words each: clips, activities, story>
+
+Already checked: preview reviewed, rendered, all joins pass, build passes, play-tested and approved by me.
+
+Please check before merging:
+1. Play http://localhost:5173/?scene=<id> (<what to look at, in a line>)
+2. <anything else worth a last look>
+
+Changes to shared code that could affect Chapter 1: <list, or "none">
+Open items: <TODOs, missing sounds, open questions; or "none">
 ```
 
-- **Works, and you're in a cloud session (claude.ai/code):** the session already has its own branch. Go to step 3.
-- **Works, local clone:** go to step 2.
-- **Fails ("not a git repository"):** the folder came from a ZIP. Go to step 2Z.
+Keep it short and true: what you actually checked, nothing more.
 
-## 2. Local clone: start a branch
+## 5. Tell him it's done
+One or two sentences: it's saved on `chapter-N`, the pull request has it, send Sameer the message, and carry on with the next scene (he never waits for the merge).
 
-```
-git status
-git switch main
-git pull
-git switch -c <branch>
-```
-
-If there are uncommitted changes, `git switch` carries them over; if it refuses, `git stash`, switch, `git stash pop`.
-
-Branch names: `story/chapter-2`, `story/fix-ch1-sylheti`, `feature/...` for code. Lowercase, hyphens.
-
-## 2Z. ZIP folder: reconnect it to GitHub (one time)
-
-1. Check git is installed: `git --version`. If not, tell the person to install Git for Windows from git-scm.com with default options, then continue.
-2. Connect the folder to the repo **without touching their files**:
-
-```
-git init -b main
-git remote add origin https://github.com/Samz6293/shesh-kheya.git
-git fetch origin
-git reset origin/main
-```
-
-`git reset origin/main` (no `--hard`) makes git treat the GitHub version as the starting point and keeps every file on disk as it is, so their edits show up as changes.
-
-3. `git status` and show the person the list of changed files in plain words. If files they didn't touch show as changed, the ZIP was older than GitHub's `main`: ask before including those.
-4. Continue with `git switch -c <branch>`.
-
-## 3. Commit
-
-- Stage only the relevant files: `git add docs/source/ src/content/ story/` (or the specific files).
-- Commit message: subject in the imperative, capitalised, no period, under 50 characters; blank line; a short body (what and why), wrapped at 72.
-
-```
-Add chapter 2 script and dialogue
-
-Add the chapter 2 script PDF and its dialogue in
-src/content/ch2/dialogue.json, and record its new flags in the
-story bible.
-```
-
-## 4. Push and open the pull request
-
-```
-git push -u origin <branch>
-```
-
-- First push on a new computer opens a browser window to sign in to GitHub (Git Credential Manager). Tell the person to approve it.
-- If `gh` is installed and signed in: `gh pr create --fill --base main`.
-- Otherwise give them this link to click, then **Create pull request**:
-  `https://github.com/Samz6293/shesh-kheya/compare/main...<branch>?expand=1`
-- In a cloud session: tell them to click **Create PR** in the Changes panel.
-
-## 5. Tell them it's done
-One or two sentences: what was saved, the PR link, and that dh1 will review and merge it.
-
-## If pushing is impossible
-(no git, sign-in fails, no network): list the changed files with their full paths and tell them to upload exactly those on GitHub: open the folder, **Add file → Upload files**, choose **Create a new branch**, **Propose changes**, **Create pull request**.
+## If pushing fails
+- "rejected" / "fetch first": someone (Sameer) changed the branch. Give `git pull`, then `git push` again. A CONFLICT: ask him to paste it, then resolve it together.
+- Sign-in fails, no network: say what's wrong in plain words; nothing is lost, the commit is saved on his computer and can be pushed later.

@@ -5,7 +5,7 @@ description: Add a new or revised chapter script (PDF) to the game. Use when som
 
 # Add a chapter script
 
-Chapter scripts arrive as PDFs, written in the writer's own format (like `docs/source/chapter-1-script.pdf`). The story is his: don't critique it, rewrite it, ask him to change his format, or tell him about the game's design rules. Your job is to bring the script into the repo and turn it into what the game reads.
+Chapter scripts arrive as PDFs, written in Tibbian's own format (like `docs/source/chapter-1-script.pdf`). The story is his: don't critique it, rewrite it, or ask him to change his format. Your job is to bring the script into the repo and turn it into what the game reads.
 
 ## 1. Put the PDF in place
 Save it as `docs/source/chapter-N-script.pdf` (replace the old file if it's a revision).
@@ -39,12 +39,12 @@ Create or update `src/content/chN/dialogue.json` in exactly the shape of `src/co
 ## 4. Update `story/bible.md`
 New characters, new flags (name, type, meaning, where set), echoes used and created, chapter status. Only facts from the script.
 
-## 5. Note what dh1 needs to know
-In the pull request description (not in the script, not to the writer), list:
+## 5. Note what the build needs
+Tibbian builds Chapter 2 onwards with you (`start`), so this is planning input, said to him plainly and kept in `docs/SCENE_STATUS.md` when the chapter is planned:
 - each scene: what's watched (cutscene) and what's played (activity, control)
 - new flags and where earlier flags are used
 - anything the game can't do yet (a new control, a new effect, a new location)
-- anything unclear in the script, as questions for dh1 to ask
+- anything unclear in the script, as questions to settle before building
 
 ## 6. Save
-Use the `save-work` skill. Branch name: `story/chapter-N` (or `story/chapter-N-revision`).
+Use the `save-work` skill (on the chapter's branch, `chapter-N`). In the message for Sameer, "What's new" is the script and its dialogue, plus any changed beat ids.
